@@ -281,7 +281,7 @@ def main(scr, level):
         # 여기까지 pause 구현
 
         #버튼 구현
-        modeButton_one = Button(screen,modeImg_one,round(scr_size*0.08),round(scr_size*0.9),round(scr_size*0.08),round(scr_size*0.04),clickmodeImg_one,round(scr_size*0.07),round(scr_size*0.896),'mode_one') # 버튼 클릭시 실행하고 싶은 파일을 'mode_one'에 써주면 된다. 
+        modeButton_one = Button(screen,modeImg_one,round(scr_size*0.08),round(scr_size*0.9),round(scr_size*0.08),round(scr_size*0.04),clickmodeImg_one,round(scr_size*0.07),round(scr_size*0.896),'mode_one') # 버튼 클릭시 실행하고 싶은 파일을 'mode_one'에 써주면 된다.
         modeButton_two = Button(screen,modeImg_two,round(scr_size*0.42),round(scr_size*0.9),round(scr_size*0.08),round(scr_size*0.04),clickmodeImg_two,round(scr_size*0.41),round(scr_size*0.896),'mode_two')
         quitButton = Button(screen,quitImg,round(scr_size*0.82),round(scr_size*0.9),round(scr_size*0.08),round(scr_size*0.04),clickQuitImg,round(scr_size*0.81),round(scr_size*0.896),'quitgame')
 
@@ -289,7 +289,7 @@ def main(scr, level):
             return scr_size, -1
         if modeButton_two.lvl_size == -2 :
             return scr_size, -2
-        
+
         pygame.display.flip()
         #여기까지 버튼 구현
 
@@ -418,7 +418,19 @@ def main(scr, level):
                     Explosion.position(alien.rect.center)
                     missilesFired += 1
                     aliensLeftThisWave -= 1
-                    score += 1
+                    #score differentiation by Alien color
+                    #wave1 aliens
+                    if alien.pType == 'green' or alien.pType == 'orange':
+                        score += 1
+                    #wave2 alien
+                    elif alien.pType == 'white':
+                        score += 2
+                    #wave3 alien
+                    elif alien.pType == 'red':
+                        score += 4
+                    #wave4 alien
+                    elif alien.pType == 'yellow':
+                        score += 8
                     if soundFX:
                         alien_explode_sound.play()
             for missile in Missile.active:
@@ -428,7 +440,19 @@ def main(scr, level):
                     missile.table()
                     Explosion.position(alien.rect.center)
                     aliensLeftThisWave -= 1
-                    score += 1
+                    #score differentiation by Alien color
+                    #wave1 aliens
+                    if alien.pType == 'green' or alien.pType == 'orange':
+                        score += 1
+                    #wave2 alien
+                    elif alien.pType == 'white':
+                        score += 2
+                    #wave3 alien
+                    elif alien.pType == 'red':
+                        score += 4
+                    #wave4 alien
+                    elif alien.pType == 'yellow':
+                        score += 8
                     if soundFX:
                         alien_explode_sound.play()
             if pygame.sprite.collide_rect(alien, ship):
@@ -436,7 +460,19 @@ def main(scr, level):
                     alien.table()
                     Explosion.position(alien.rect.center)
                     aliensLeftThisWave -= 1
-                    score += 1
+                    #score differentiation by Alien color
+                    #wave1 aliens
+                    if alien.pType == 'green' or alien.pType == 'orange':
+                        score += 1
+                    #wave2 alien
+                    elif alien.pType == 'white':
+                        score += 2
+                    #wave3 alien
+                    elif alien.pType == 'red':
+                        score += 4
+                    #wave4 alien
+                    elif alien.pType == 'yellow':
+                        score += 8
                     missilesFired += 1
                     ship.shieldUp = False
                 else:
@@ -616,6 +652,3 @@ def main(scr, level):
         for txt, pos in textOverlay:
             screen.blit(txt, pos)
         pygame.display.flip()
-
-
-
