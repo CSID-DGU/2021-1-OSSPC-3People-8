@@ -158,6 +158,15 @@ def main(scr, level):
         highScorePos.extend([highScoreTexts[x].get_rect(
             topleft=highScorePos[x].bottomleft) for x in range(-3, 0)])
 
+    #database에 저장된 업적과 연동해야함, hiScoreTexts.extend ~ 라인 참고
+    achieveTexts = [font.render("ACHIEVEMENT NAME", 1, RED),
+                    font.render("Progress", 1, RED)]
+    achievePos = [achieveTexts[0].get_rect(
+                    topleft=screen.get_rect().inflate(-scr_size*0.2, -scr_size*0.2).topleft),
+                  achieveTexts[1].get_rect(
+                    topright=screen.get_rect().inflate(-scr_size*0.2, -scr_size*0.2).topright)]
+    ########
+
     title, titleRect = load_image('title.png')
     title = pygame.transform.scale(title, (round(title.get_width()*scr_size/500), round(title.get_height()*scr_size/500)))
     titleRect = pygame.Rect(0, 0, title.get_width(), title.get_height())
@@ -183,13 +192,16 @@ def main(scr, level):
     musicOffText = font.render('OFF', 1, RED)
     musicOnPos = musicOnText.get_rect(topleft=musicPos.topright)
     musicOffPos = musicOffText.get_rect(topleft=musicPos.topright)
+    achievementText = font.render('ACHIEVEMENTS', 1, WHITE)
+    achievementPos = achievementText.get_rect(topleft=musicPos.bottomleft)
     quitText = font.render('QUIT', 1, WHITE)
-    quitPos = quitText.get_rect(topleft=musicPos.bottomleft)
+    quitPos = quitText.get_rect(topleft=achievementPos.bottomleft)
     selectText = font.render('> ', 1, WHITE)
     selectPos = selectText.get_rect(topright=startPos.topleft)
-    menuDict = {1: startPos, 2: hiScorePos, 3: fxPos, 4: musicPos, 5: quitPos}
+    menuDict = {1: startPos, 2: hiScorePos, 3: fxPos, 4: musicPos, 5: achievementPos, 6: quitPos}
     selection = 1
     showHiScores = False
+    showAchievement = False
     soundFX = Database.getSound()
     music = Database.getSound(music=True)
 
@@ -230,6 +242,8 @@ def main(scr, level):
                   and event.key == pygame.K_RETURN): # K_RETURN은 enter누르면
                 if showHiScores:
                     showHiScores = False
+                elif showAchievement:
+                    showAchievement = False
                 elif selection == 1:
                     screen = pygame.display.set_mode((scr_size, scr_size))  # 리사이즈 불가능하도록 변경
                     inMenu = False
@@ -249,30 +263,36 @@ def main(scr, level):
                         pygame.mixer.music.stop()
                     Database.setSound(int(music), music=True)
                 elif selection == 5:
+                    showAchievement = True
+                elif selection == 6:
                      pygame.quit()
                      sys.exit()
             elif (event.type == pygame.KEYDOWN
                   and event.key == pygame.K_UP
                   and selection > 1
-                  and not showHiScores):
+                  and not showHiScores
+                  and not showAchievement):
                 selection -= 1
             elif (event.type == pygame.KEYDOWN
                   and event.key == pygame.K_DOWN
                   and selection < len(menuDict)
-                  and not showHiScores):
+                  and not showHiScores
+                  and not showAchievement):
                 selection += 1
 
         selectPos = selectText.get_rect(topright=menuDict[selection].topleft)
 
         if showHiScores:
             textOverlays = zip(highScoreTexts, highScorePos)
+        elif showAchievement:
+            textOverlays = zip(achieveTexts, achievePos)
         else:
             textOverlays = zip([startText, hiScoreText, fxText,
-                                musicText, quitText, selectText,
+                                musicText, achievementText, quitText, selectText,
                                 fxOnText if soundFX else fxOffText,
                                 musicOnText if music else musicOffText],
                                [startPos, hiScorePos, fxPos,
-                                musicPos, quitPos, selectPos,
+                                musicPos, achievementPos, quitPos, selectPos,
                                 fxOnPos if soundFX else fxOffPos,
                                 musicOnPos if music else musicOffPos])
             screen.blit(title, titleRect)
@@ -281,9 +301,13 @@ def main(scr, level):
         # 여기까지 pause 구현
 
         #버튼 구현
-        modeButton_one = Button(screen,modeImg_one,round(scr_size*0.08),round(scr_size*0.9),round(scr_size*0.08),round(scr_size*0.04),clickmodeImg_one,round(scr_size*0.07),round(scr_size*0.896),'mode_one') # 버튼 클릭시 실행하고 싶은 파일을 'mode_one'에 써주면 된다.
-        modeButton_two = Button(screen,modeImg_two,round(scr_size*0.42),round(scr_size*0.9),round(scr_size*0.08),round(scr_size*0.04),clickmodeImg_two,round(scr_size*0.41),round(scr_size*0.896),'mode_two')
-        quitButton = Button(screen,quitImg,round(scr_size*0.82),round(scr_size*0.9),round(scr_size*0.08),round(scr_size*0.04),clickQuitImg,round(scr_size*0.81),round(scr_size*0.896),'quitgame')
+        button1Pos = 0.08 #mode1
+        button2Pos = 0.32 #mode2
+        button3Pos = 0.82 #quit
+
+        modeButton_one = Button(screen,modeImg_one,round(scr_size*button1Pos),round(scr_size*0.9),round(scr_size*0.08),round(scr_size*0.04),clickmodeImg_one,round(scr_size*(button1Pos-0.01)),round(scr_size*0.896),'mode_one') # 버튼 클릭시 실행하고 싶은 파일을 'mode_one'에 써주면 된다.
+        modeButton_two = Button(screen,modeImg_two,round(scr_size*button2Pos),round(scr_size*0.9),round(scr_size*0.08),round(scr_size*0.04),clickmodeImg_two,round(scr_size*(button2Pos-0.01)),round(scr_size*0.896),'mode_two')
+        quitButton = Button(screen,quitImg,round(scr_size*button3Pos),round(scr_size*0.9),round(scr_size*0.08),round(scr_size*0.04),clickQuitImg,round(scr_size*(button3Pos-0.01)),round(scr_size*0.896),'quitgame')
 
         if modeButton_one.lvl_size == -1 :
             return scr_size, -1
@@ -358,6 +382,8 @@ def main(scr, level):
                             and event.key == pygame.K_RETURN):
                             if showHiScores:
                                 showHiScores = False
+                            elif showAchievement:
+                                showAchievement = False
                             elif selection == 1:
                                 inPmenu = False
                                 break
@@ -376,30 +402,36 @@ def main(scr, level):
                                     pygame.mixer.music.stop()
                                 Database.setSound(int(music), music=True)
                             elif selection == 5:
+                                showAchievement = True
+                            elif selection == 6:
                                 pygame.quit()
                                 sys.exit()
                         elif (event.type == pygame.KEYDOWN
                             and event.key == pygame.K_UP
                             and selection > 1
-                            and not showHiScores):
+                            and not showHiScores
+                            and not showAchievement):
                             selection -= 1
                         elif (event.type == pygame.KEYDOWN
                             and event.key == pygame.K_DOWN
                             and selection < len(menuDict)
-                            and not showHiScores):
+                            and not showHiScores
+                            and not showAchievement):
                             selection += 1
 
                     selectPos = selectText.get_rect(topright=menuDict[selection].topleft)
 
                     if showHiScores:
                         textOverlays = zip(highScoreTexts, highScorePos)
+                    elif showAchievement:
+                        textOverlays = zip(achieveTexts, achievePos)
                     else:
                         textOverlays = zip([restartText, hiScoreText, fxText,
-                                            musicText, quitText, selectText,
+                                            musicText, achievementText, quitText, selectText,
                                             fxOnText if soundFX else fxOffText,
                                             musicOnText if music else musicOffText],
                                         [restartPos, hiScorePos, fxPos,
-                                            musicPos, quitPos, selectPos,
+                                            musicPos, achievementPos, quitPos, selectPos,
                                             fxOnPos if soundFX else fxOffPos,
                                             musicOnPos if music else musicOffPos])
                         screen.blit(pause, pauseRect)
