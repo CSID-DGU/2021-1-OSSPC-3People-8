@@ -5,7 +5,7 @@ import sys
 # from pygame.font import Font
 import grequests
 
-from sprites import (MasterSprite, Ship, Alien, Missile, BombPowerup,
+from sprites import (MasterSprite, Ship, Alien, Missile, BombPowerup,CoinPowerup,CoinTwoPowerup,
                      ShieldPowerup, DoublemissilePowerup, Explosion, Siney, Spikey, Fasty,
                      Roundy, Crawly)
 from database import Database
@@ -110,7 +110,7 @@ def main(scr, level, id):
     ship = Ship()
     initialAlienTypes = (Siney, Spikey)
     powerupTypes = (BombPowerup, ShieldPowerup, DoublemissilePowerup)
-
+    coinTypes = (CoinPowerup,CoinTwoPowerup)
     # Sprite groups
     alldrawings = pygame.sprite.Group()
     allsprites = pygame.sprite.RenderPlain((ship,))
@@ -124,6 +124,7 @@ def main(scr, level, id):
     Explosion.active = pygame.sprite.Group()
     bombs = pygame.sprite.Group()
     powerups = pygame.sprite.Group()
+    coingroup = pygame.sprite.Group()
 
     # Sounds
     missile_sound = load_sound('missile.ogg')
@@ -137,6 +138,7 @@ def main(scr, level, id):
     aliensThisWave, aliensLeftThisWave, Alien.numOffScreen = 10, 10, 10
     wave = 1
     bombsHeld = 3
+    coinsHeld = 0 # coin 구현
     doublemissile = False #doublemissile아이템이 지속되는 동안(5초) 미사일이 두배로 발사됨
     score = 0
     missilesFired = 0
@@ -146,6 +148,8 @@ def main(scr, level, id):
     betweenWaveCount = betweenWaveTime
     betweenDoubleTime = 5 * clockTime
     betweenDoubleCount = betweenDoubleTime
+    coinTime = 3 * clockTime # coin 구현 (3초에 한번씩 떨어지게..)
+    coinTimeLeft = coinTime # coin 구현
     font = pygame.font.Font(None, round(scr_size*0.065))
 
     inMenu = True
@@ -378,7 +382,7 @@ def main(scr, level, id):
 
         #버튼 구현
         button1Pos = 0.08 #mode1
-        button2Pos = 0.32 #mode2
+        button2Pos = 0.52 #mode2
         button3Pos = 0.82 #quit
 
         modeButton_one = Button(screen,modeImg_one,round(scr_size*button1Pos),round(scr_size*0.9),round(scr_size*0.08),round(scr_size*0.04),clickmodeImg_one,round(scr_size*(button1Pos-0.01)),round(scr_size*0.896),'mode_one') # 버튼 클릭시 실행하고 싶은 파일을 'mode_one'에 써주면 된다.
@@ -398,9 +402,14 @@ def main(scr, level, id):
 
         if aliensLeftThisWave >= 20:
             powerupTimeLeft -= 1
+            coinTimeLeft -=1
         if powerupTimeLeft <= 0:
             powerupTimeLeft = powerupTime
             random.choice(powerupTypes)().add(powerups, allsprites)
+        if coinTimeLeft <=0:
+            coinTimeLeft = coinTime
+            random.choice(coinTypes)().add(coingroup,allsprites)
+
 
         # Event Handling
         for event in pygame.event.get():
@@ -610,11 +619,18 @@ def main(scr, level, id):
                     missilesFired += 1
                     ship.shieldUp = False
                 else:
-                    ship.alive = False
-                    ship.remove(allsprites)
-                    Explosion.position(ship.rect.center)
-                    if soundFX:
-                        ship_explode_sound.play()
+                    # life 구현 부분
+                    if ship.lives ==1:    
+                        ship.alive = False
+                        ship.remove(allsprites)
+                        Explosion.position(ship.rect.center)
+                        if soundFX:
+                            ship_explode_sound.play()
+                    else:
+                        alien.table()
+                        Explosion.position(alien.rect.center)
+                        aliensLeftThisWave -= 1
+                        ship.lives -=1
 
         # PowerUps
         for powerup in powerups:
@@ -628,6 +644,16 @@ def main(scr, level, id):
                 powerup.kill()
             elif powerup.rect.top > powerup.area.bottom:
                 powerup.kill()
+        # coin Drop부분
+        for coin in coingroup:
+            if pygame.sprite.collide_circle(coin, ship):
+                if coin.pType == 'coin':
+                    coinsHeld +=1
+                elif coin.pType =='coin2':
+                    coinsHeld +=2
+                coin.kill()
+            elif coin.rect.top > coin.area.bottom:
+                coin.kill()
 
      # Update Aliens
         if curTime <= 0 and aliensLeftThisWave > 0:
@@ -710,8 +736,11 @@ def main(scr, level, id):
         allsprites.update()
         allsprites.draw(screen)
         alldrawings.update()
+
         for txt, pos in textOverlays:
             screen.blit(txt, pos)
+        # life 구현
+        ship.draw_lives(screen,scr_size-80,scr_size/50)  
         pygame.display.flip()
 
     accuracy = round(score / missilesFired, 4) if missilesFired > 0 else 0.0
@@ -727,7 +756,6 @@ def main(scr, level, id):
 
     while True:
         clock.tick(clockTime)
-
         # login event handling
         if showLogin == True :
             for event in pygame.event.get():
@@ -752,7 +780,6 @@ def main(scr, level, id):
                         and event.key == pygame.K_RETURN
                         and len(id) > 0):
                         is_input_id = False
-                
                 else :
                     if (event.type == pygame.QUIT
                         or not showLogin
