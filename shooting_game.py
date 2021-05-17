@@ -1,16 +1,15 @@
 import pygame
 import random
 from collections import deque
-import time
 import sys
-import os
+# from pygame.font import Font
+import grequests
 
 from sprites import (MasterSprite, Ship, Alien, Missile, BombPowerup,
                      ShieldPowerup, DoublemissilePowerup, Explosion, Siney, Spikey, Fasty,
                      Roundy, Crawly)
 from database import Database
 from load import load_image, load_sound, load_music
-import os
 
 if not pygame.mixer:
     print('Warning, sound disabled')
@@ -20,9 +19,11 @@ if not pygame.font:
 
 # BLUE = (0, 0, 255)
 RED = (255, 0, 0)
-BLACK= ( 0,  0,  0)
-WHITE= (255,255,255)
-GREEN= ( 0,255,  0)
+BLACK= (0, 0, 0)
+WHITE= (255, 255, 255)
+GREEN= (0, 255, 0)
+
+url = "http://15.164.204.93"
 
 class Button:
     def __init__(self, gameDisplay,img_in, x, y, width, height, img_act, x_act, y_act, action = None):
@@ -36,15 +37,19 @@ class Button:
                 sys.exit()
             elif click[0] and action == 'mode_one':
                 self.lvl_size = -1
-                # time.sleep(1)
-                # exec(open('mode_one.py',encoding='UTF8').read())  ## 여기서 py파일만 다르게 해주면 해당 py파일이 실행되는 것
+
             elif click[0] and action == 'mode_two':
                 self.lvl_size = -2
-                # time.sleep(1)
-                # exec(open('mode_two.py',encoding='UTF8').read())  ## 여기서 py파일만 다르게 해주면 해당 py파일이 실행되는 것
+
         else:
             gameDisplay.blit(img_in,(x,y))
 #여기까지 버튼 구현
+
+    def draw(self, screen):
+        # Blit the text.
+        screen.blit(self.txt_surface, (self.rect.x+5, self.rect.y+5))
+        # Blit the rect.
+        pygame.draw.rect(screen, self.color, self.rect, 2)
 
 class Keyboard(object):
     keys = {pygame.K_a: 'A', pygame.K_b: 'B', pygame.K_c: 'C', pygame.K_d: 'D',
@@ -55,9 +60,12 @@ class Keyboard(object):
             pygame.K_u: 'U', pygame.K_v: 'V', pygame.K_w: 'W', pygame.K_x: 'X',
             pygame.K_y: 'Y', pygame.K_z: 'Z'}
 
-def main(scr, level):
+def main(scr, level, id):
     scr_size, level_size = scr, level
     user_size = round(scr_size * level_size)
+    id = id
+
+    url = "http://15.164.204.93"
 
     direction = {None: (0, 0), pygame.K_UP: (0, -scr_size*0.004), pygame.K_DOWN: (0, scr_size*0.004),
              pygame.K_LEFT: (-scr_size*0.004, 0), pygame.K_RIGHT: (scr_size*0.004, 0)}
@@ -173,13 +181,20 @@ def main(scr, level):
     pause,pauseRect = load_image('pause.png',WHITE)
     pause = pygame.transform.scale(pause, (round(pause.get_width()*scr_size/500), round(pause.get_height()*scr_size/500)))
     pauseRect = pygame.Rect(0, 0, pause.get_width(), pause.get_height())
-    titleRect.midtop = screen.get_rect().inflate(0, -scr_size*0.4).midtop
-    pauseRect.midtop = screen.get_rect().inflate(0, -scr_size*0.4).midtop
+    titleRect.midtop = screen.get_rect().inflate(0, -scr_size*0.35).midtop
+    pauseRect.midtop = screen.get_rect().inflate(0, -scr_size*0.35).midtop
 
     startText = font.render('START GAME', 1, WHITE)
-    startPos = startText.get_rect(midtop=titleRect.inflate(0, scr_size*0.2).midbottom)
+    startPos = startText.get_rect(midtop=titleRect.inflate(0, scr_size*0.15).midbottom)
+    loginText = font.render('LOGIN', 1, WHITE)
     hiScoreText = font.render('HIGH SCORES', 1, WHITE)
-    hiScorePos = hiScoreText.get_rect(topleft=startPos.bottomleft)
+    createaccountText = font.render('CREATE ACCOUNT', 1, WHITE)
+    loginPos = loginText.get_rect(topleft=startPos.bottomleft)
+    createaccountPos = createaccountText.get_rect(topleft=loginPos.bottomleft)
+    if id == '' :
+        hiScorePos = hiScoreText.get_rect(topleft=createaccountPos.bottomleft)
+    else :
+        hiScorePos = hiScoreText.get_rect(topleft=startPos.bottomleft)
     fxText = font.render('SOUND FX ', 1, WHITE)
     fxPos = fxText.get_rect(topleft=hiScorePos.bottomleft)
     fxOnText = font.render('ON', 1, RED)
@@ -188,35 +203,50 @@ def main(scr, level):
     fxOffPos = fxOffText.get_rect(topleft=fxPos.topright)
     musicText = font.render('MUSIC', 1, WHITE)
     musicPos = fxText.get_rect(topleft=fxPos.bottomleft)
+    achievementText = font.render('ACHIEVEMENTS', 1, WHITE)
+    achievementPos = achievementText.get_rect(topleft=musicPos.bottomleft)
     musicOnText = font.render('ON', 1, RED)
     musicOffText = font.render('OFF', 1, RED)
     musicOnPos = musicOnText.get_rect(topleft=musicPos.topright)
     musicOffPos = musicOffText.get_rect(topleft=musicPos.topright)
-    achievementText = font.render('ACHIEVEMENTS', 1, WHITE)
-    achievementPos = achievementText.get_rect(topleft=musicPos.bottomleft)
     quitText = font.render('QUIT', 1, WHITE)
     quitPos = quitText.get_rect(topleft=achievementPos.bottomleft)
     selectText = font.render('> ', 1, WHITE)
     selectPos = selectText.get_rect(topright=startPos.topleft)
-    menuDict = {1: startPos, 2: hiScorePos, 3: fxPos, 4: musicPos, 5: achievementPos, 6: quitPos}
+
     selection = 1
     showHiScores = False
+    showLogin = False
+    showCreateaccount = False
     showAchievement = False
     soundFX = Database.getSound()
     music = Database.getSound(music=True)
 
+    if id != '':
+        menuDict = {1: startPos, 2: hiScorePos, 3: fxPos, 4: musicPos, 5: achievementPos , 6: quitPos}
+    else :
+        menuDict = {1: startPos, 2:loginPos, 3:createaccountPos, 4: hiScorePos, 5: fxPos, 6: musicPos, 7: achievementPos, 8: quitPos}
+
+    
+
     # 버튼 구현
     modeImg_one = pygame.image.load("data/mode1.png")
+    modeImg_one = pygame.transform.scale(modeImg_one, (round(modeImg_one.get_width()*scr_size/500), round(modeImg_one.get_height()*scr_size/500)))
     modeImg_two = pygame.image.load("data/mode2.png")
+    modeImg_two = pygame.transform.scale(modeImg_two, (round(modeImg_two.get_width()*scr_size/500), round(modeImg_two.get_height()*scr_size/500)))
     quitImg = pygame.image.load("data/quiticon.png")
+    quitImg = pygame.transform.scale(quitImg, (round(quitImg.get_width()*scr_size/500), round(quitImg.get_height()*scr_size/500)))
     clickmodeImg_one = pygame.image.load("data/mode1clicked.png")
+    clickmodeImg_one = pygame.transform.scale(clickmodeImg_one, (round(clickmodeImg_one.get_width()*scr_size/500), round(clickmodeImg_one.get_height()*scr_size/500)))
     clickmodeImg_two = pygame.image.load("data/mode2clicked.png")
+    clickmodeImg_two = pygame.transform.scale(clickmodeImg_two, (round(clickmodeImg_two.get_width()*scr_size/500), round(clickmodeImg_two.get_height()*scr_size/500)))
     clickQuitImg = pygame.image.load("data/clickedQuitIcon.png")
+    clickQuitImg = pygame.transform.scale(clickQuitImg, (round(clickQuitImg.get_width()*scr_size/500), round(clickQuitImg.get_height()*scr_size/500)))
     #여기까지 버튼 구현
 
     # pause 구현
-    restartText = font.render('RESTART    ', 1,WHITE)
-    restartPos = restartText.get_rect(midtop=titleRect.inflate(0, scr_size*0.2).midbottom)
+    restartText = font.render('RESTART', 1, WHITE)
+    restartPos = restartText.get_rect(bottomleft=hiScorePos.topleft)
 
     if music and pygame.mixer:
         pygame.mixer.music.play(loops=-1)
@@ -224,7 +254,7 @@ def main(scr, level):
     while inMenu:
         scr_x , scr_y = pygame.display.get_surface().get_size()
         if scr_size != scr_x or scr_size != scr_y :
-            return min(scr_x, scr_y), level_size    # 메뉴화면에서만 창 사이즈 크기 확인하고, 변경되면 main 재시작
+            return min(scr_x, scr_y), level_size, id    # 메뉴화면에서만 창 사이즈 크기 확인하고, 변경되면 main 재시작
         clock.tick(clockTime)
 
         screen.blit(
@@ -242,29 +272,65 @@ def main(scr, level):
                   and event.key == pygame.K_RETURN): # K_RETURN은 enter누르면
                 if showHiScores:
                     showHiScores = False
-                elif showAchievement:
+                elif showLogin:
+                    showLogin = False
+                elif showCreateaccount :
+                    showCreateaccount = False
+                elif showAchievement :
                     showAchievement = False
                 elif selection == 1:
                     screen = pygame.display.set_mode((scr_size, scr_size))  # 리사이즈 불가능하도록 변경
                     inMenu = False
                     ship.initializeKeys()
-                elif selection == 2:
+                elif selection == 2 and id == '':
+                    showLogin = True
+                    inMenu = False
+                    ship.alive = False
+                elif selection == 3 and id == '':
+                    showCreateaccount = True
+                    inMenu = False
+                    ship.alive = False
+                elif selection == 4 and id == '' :
+                    hiScores = Database.getScores()
+                    print(hiScores)
+                    highScoreTexts = [font.render("NAME", 1, RED), font.render("SCORE", 1, RED), font.render("ACCURACY", 1, RED)]
+                    for hs in hiScores:
+                        highScoreTexts.extend([font.render(str(hs[x]), 1, WHITE) for x in range(3)])
+                        highScorePos.extend([highScoreTexts[x].get_rect(
+                        topleft=highScorePos[x].bottomleft) for x in range(-3, 0)])
                     showHiScores = True
-                elif selection == 3:
+                elif selection == 2 and id != '' :
+                    req = grequests.get(url + '/get_record/')
+                    res = grequests.map([req])
+                    Scores = res[0].content.decode()[1:-1].split(',')
+                    hiScores = []
+                    for i in range(len(Scores)) :
+                        if i % 3 == 0 : score_id = Scores[i][2:-1]
+                        elif i % 3 == 1 : score_score = int(Scores[i][:])
+                        else : hiScores.append([score_id, score_score, Scores[i][:-1]])
+                    hiScores = sorted(hiScores, key=lambda h: h[1], reverse=True)
+                    print(hiScores)
+                    highScoreTexts = [font.render("NAME", 1, RED), font.render("SCORE", 1, RED), font.render("ACCURACY", 1, RED)]
+                    for hs in hiScores:
+                        highScoreTexts.extend([font.render(str(hs[x]), 1, WHITE) for x in range(3)])
+                        highScorePos.extend([highScoreTexts[x].get_rect(
+                        topleft=highScorePos[x].bottomleft) for x in range(-3, 0)])
+                    showHiScores = True
+                elif (selection == 5 and id == '') or (selection == 3 and id != ''):
                     soundFX = not soundFX
                     if soundFX:
                         missile_sound.play()
                     Database.setSound(int(soundFX))
-                elif selection == 4 and pygame.mixer:
+                elif ((selection == 6 and id == '') or (selection == 4 and id != '')) and pygame.mixer:
                     music = not music
                     if music:
                         pygame.mixer.music.play(loops=-1)
                     else:
                         pygame.mixer.music.stop()
                     Database.setSound(int(music), music=True)
-                elif selection == 5:
+                elif ((selection == 7 and id == '') or (selection == 5 and id != '')) and pygame.mixer:
                     showAchievement = True
-                elif selection == 6:
+                elif (selection == 8 and id == '') or (selection == 6 and id != ''):
                      pygame.quit()
                      sys.exit()
             elif (event.type == pygame.KEYDOWN
@@ -286,6 +352,16 @@ def main(scr, level):
             textOverlays = zip(highScoreTexts, highScorePos)
         elif showAchievement:
             textOverlays = zip(achieveTexts, achievePos)
+        elif id == '' :
+            textOverlays = zip([startText, loginText, hiScoreText, createaccountText, fxText,
+                                musicText, achievementText, quitText, selectText,
+                                fxOnText if soundFX else fxOffText,
+                                musicOnText if music else musicOffText],
+                               [startPos, loginPos, hiScorePos, createaccountPos, fxPos,
+                                musicPos, achievementPos, quitPos, selectPos,
+                                fxOnPos if soundFX else fxOffPos,
+                                musicOnPos if music else musicOffPos])
+            screen.blit(title, titleRect)
         else:
             textOverlays = zip([startText, hiScoreText, fxText,
                                 musicText, achievementText, quitText, selectText,
@@ -308,11 +384,11 @@ def main(scr, level):
         modeButton_one = Button(screen,modeImg_one,round(scr_size*button1Pos),round(scr_size*0.9),round(scr_size*0.08),round(scr_size*0.04),clickmodeImg_one,round(scr_size*(button1Pos-0.01)),round(scr_size*0.896),'mode_one') # 버튼 클릭시 실행하고 싶은 파일을 'mode_one'에 써주면 된다.
         modeButton_two = Button(screen,modeImg_two,round(scr_size*button2Pos),round(scr_size*0.9),round(scr_size*0.08),round(scr_size*0.04),clickmodeImg_two,round(scr_size*(button2Pos-0.01)),round(scr_size*0.896),'mode_two')
         quitButton = Button(screen,quitImg,round(scr_size*button3Pos),round(scr_size*0.9),round(scr_size*0.08),round(scr_size*0.04),clickQuitImg,round(scr_size*(button3Pos-0.01)),round(scr_size*0.896),'quitgame')
-
+        
         if modeButton_one.lvl_size == -1 :
-            return scr_size, -1
+            return scr_size, 1, id
         if modeButton_two.lvl_size == -2 :
-            return scr_size, -2
+            return scr_size, 1.6, id
 
         pygame.display.flip()
         #여기까지 버튼 구현
@@ -364,9 +440,10 @@ def main(scr, level):
             # pause 구현부분
             elif (event.type == pygame.KEYDOWN and event.key == pygame.K_p):
                 inPmenu = True
+                menuDict = {1: restartPos, 2: hiScorePos, 3: fxPos, 4: musicPos, 5: achievementPos , 6: quitPos}
+                selectPos = selectText.get_rect(topright=restartPos.topleft)
                 while inPmenu:
                     clock.tick(clockTime)
-
                     screen.blit(
                         background, (0, 0), area=pygame.Rect(
                             0, backgroundLoc, scr_size, scr_size))
@@ -374,20 +451,45 @@ def main(scr, level):
                     if backgroundLoc - speed <= speed:
                         backgroundLoc = scr_size*3
 
+                    ###
                     for event in pygame.event.get():
                         if (event.type == pygame.QUIT):
                             pygame.quit()
                             sys.exit()
                         elif (event.type == pygame.KEYDOWN
-                            and event.key == pygame.K_RETURN):
+                            and event.key == pygame.K_RETURN): # K_RETURN은 enter누르면
                             if showHiScores:
                                 showHiScores = False
-                            elif showAchievement:
+                            elif showAchievement :
                                 showAchievement = False
                             elif selection == 1:
                                 inPmenu = False
                                 break
-                            elif selection == 2:
+                            elif selection == 2 and id == '' :
+                                hiScores = Database.getScores()
+                                print(hiScores)
+                                highScoreTexts = [font.render("NAME", 1, RED), font.render("SCORE", 1, RED), font.render("ACCURACY", 1, RED)]
+                                for hs in hiScores:
+                                    highScoreTexts.extend([font.render(str(hs[x]), 1, WHITE) for x in range(3)])
+                                    highScorePos.extend([highScoreTexts[x].get_rect(
+                                    topleft=highScorePos[x].bottomleft) for x in range(-3, 0)])
+                                showHiScores = True
+                            elif selection == 2 and id != '' :
+                                req = grequests.get(url + '/get_record/')
+                                res = grequests.map([req])
+                                Scores = res[0].content.decode()[1:-1].split(',')
+                                hiScores = []
+                                for i in range(len(Scores)) :
+                                    if i % 3 == 0 : score_id = Scores[i][2:-1]
+                                    elif i % 3 == 1 : score_score = Scores[i][:]
+                                    else : hiScores.append([score_id, score_score, float(Scores[i][:-1])])
+                                hiScores = sorted(hiScores, key=lambda h: h[1], reverse=True)
+                                print(hiScores)
+                                highScoreTexts = [font.render("NAME", 1, RED), font.render("SCORE", 1, RED), font.render("ACCURACY", 1, RED)]
+                                for hs in hiScores:
+                                    highScoreTexts.extend([font.render(str(hs[x]), 1, WHITE) for x in range(3)])
+                                    highScorePos.extend([highScoreTexts[x].get_rect(
+                                    topleft=highScorePos[x].bottomleft) for x in range(-3, 0)])
                                 showHiScores = True
                             elif selection == 3:
                                 soundFX = not soundFX
@@ -434,7 +536,7 @@ def main(scr, level):
                                             musicPos, achievementPos, quitPos, selectPos,
                                             fxOnPos if soundFX else fxOffPos,
                                             musicOnPos if music else musicOffPos])
-                        screen.blit(pause, pauseRect)
+                        screen.blit(pause, titleRect)
                     for txt, pos in textOverlays:
                         screen.blit(txt, pos)
                     pygame.display.flip()
@@ -614,41 +716,169 @@ def main(scr, level):
 
     accuracy = round(score / missilesFired, 4) if missilesFired > 0 else 0.0
     isHiScore = len(hiScores) < Database.numScores or score > hiScores[-1][1]
+    if showLogin or showCreateaccount :
+        isHiScore = False
     name = ''
     nameBuffer = []
+    idBuffer = []
+    password = ''
+    pwBuffer = []
+    is_input_id = True
 
     while True:
         clock.tick(clockTime)
 
-    # Event Handling
-        for event in pygame.event.get():
-            if (event.type == pygame.QUIT
-                or not isHiScore
-                and event.type == pygame.KEYDOWN
-                    and event.key == pygame.K_ESCAPE):
-                pygame.quit()
-                sys.exit()
-            elif (event.type == pygame.KEYDOWN
-                  and event.key == pygame.K_RETURN
-                  and not isHiScore):
-                return scr_size, level_size
-            elif (event.type == pygame.KEYDOWN
-                  and event.key in Keyboard.keys.keys()
-                  and len(nameBuffer) < 8):
-                nameBuffer.append(Keyboard.keys[event.key])
-                name = ''.join(nameBuffer)
-            elif (event.type == pygame.KEYDOWN
-                  and event.key == pygame.K_BACKSPACE
-                  and len(nameBuffer) > 0):
-                nameBuffer.pop()
-                name = ''.join(nameBuffer)
-            elif (event.type == pygame.KEYDOWN
-                  and event.key == pygame.K_RETURN
-                  and len(name) > 0):
-                Database.setScore(hiScores, (name, score, accuracy))
-                return scr_size, level_size
+        # login event handling
+        if showLogin == True :
+            for event in pygame.event.get():
+                if is_input_id :
+                    if (event.type == pygame.QUIT
+                        or not showLogin
+                        and event.type == pygame.KEYDOWN
+                            and event.key == pygame.K_ESCAPE):
+                        pygame.quit()
+                        sys.exit()
+                    elif (event.type == pygame.KEYDOWN
+                        and event.key in Keyboard.keys.keys()
+                        and len(idBuffer) < 8):
+                        idBuffer.append(Keyboard.keys[event.key])
+                        id = ''.join(idBuffer)
+                    elif (event.type == pygame.KEYDOWN
+                        and event.key == pygame.K_BACKSPACE
+                        and len(idBuffer) > 0):
+                        idBuffer.pop()
+                        id = ''.join(idBuffer)
+                    elif (event.type == pygame.KEYDOWN
+                        and event.key == pygame.K_RETURN
+                        and len(id) > 0):
+                        is_input_id = False
+                
+                else :
+                    if (event.type == pygame.QUIT
+                        or not showLogin
+                        and event.type == pygame.KEYDOWN
+                            and event.key == pygame.K_ESCAPE):
+                        pygame.quit()
+                        sys.exit()
+                    elif (event.type == pygame.KEYDOWN
+                        and event.key in Keyboard.keys.keys()
+                        and len(pwBuffer) < 3):
+                        pwBuffer.append(Keyboard.keys[event.key])
+                        password = ''.join(pwBuffer)
+                    elif (event.type == pygame.KEYDOWN
+                        and event.key == pygame.K_BACKSPACE
+                        and len(pwBuffer) > 0):
+                        pwBuffer.pop()
+                        password = ''.join(pwBuffer)
+                    elif (event.type == pygame.KEYDOWN
+                        and event.key == pygame.K_RETURN
+                        and len(password) > 0):
+                        is_input_id, inMenu, ship.alive, showLogin = True, True, True, False
+                        data = {"id": id, "password": password}
+                        req = grequests.post(url + '/login/', json=data)
+                        res = grequests.map([req])
+                        print(res[0].content)
+                        if res[0].content == b'"Login Success"' :
+                            print('login success')
+                            return scr_size, level_size, id
+                        else :
+                            print('login failed')
+                            return scr_size, level_size, ''
+        
+        elif showCreateaccount == True :
+            for event in pygame.event.get():
+                if is_input_id :
+                    if (event.type == pygame.QUIT
+                        or not showCreateaccount
+                        and event.type == pygame.KEYDOWN
+                            and event.key == pygame.K_ESCAPE):
+                        pygame.quit()
+                        sys.exit()
+                    elif (event.type == pygame.KEYDOWN
+                        and event.key in Keyboard.keys.keys()
+                        and len(idBuffer) < 8):
+                        idBuffer.append(Keyboard.keys[event.key])
+                        id = ''.join(idBuffer)
+                    elif (event.type == pygame.KEYDOWN
+                        and event.key == pygame.K_BACKSPACE
+                        and len(idBuffer) > 0):
+                        idBuffer.pop()
+                        id = ''.join(idBuffer)
+                    elif (event.type == pygame.KEYDOWN
+                        and event.key == pygame.K_RETURN
+                        and len(id) > 0):
+                        is_input_id = False
+                
+                else :
+                    if (event.type == pygame.QUIT
+                        or not showCreateaccount
+                        and event.type == pygame.KEYDOWN
+                            and event.key == pygame.K_ESCAPE):
+                        pygame.quit()
+                        sys.exit()
+                    elif (event.type == pygame.KEYDOWN
+                        and event.key in Keyboard.keys.keys()
+                        and len(pwBuffer) < 3):
+                        pwBuffer.append(Keyboard.keys[event.key])
+                        password = ''.join(pwBuffer)
+                    elif (event.type == pygame.KEYDOWN
+                        and event.key == pygame.K_BACKSPACE
+                        and len(pwBuffer) > 0):
+                        pwBuffer.pop()
+                        password = ''.join(pwBuffer)
+                    elif (event.type == pygame.KEYDOWN
+                        and event.key == pygame.K_RETURN
+                        and len(password) > 0):
+                        is_input_id, inMenu, ship.alive, showCreateaccount = True, True, True, False
+                        data = {"id": id, "password": password}
+                        req = grequests.post(url + "/create_account/", json=data)
+                        res = grequests.map([req])
+                        print(res[0].content)
+                        if res[0].content == b'"Account created"' :
+                            print('Account created')
+                            return scr_size, level_size, ''
+                        else :
+                            print('Exist same ID')
+                            return scr_size, level_size, ''
+                            
 
-        if isHiScore:
+        # hiscore event handling
+        elif id == '' :
+            for event in pygame.event.get():
+                if (event.type == pygame.QUIT
+                    or not isHiScore
+                    and event.type == pygame.KEYDOWN
+                        and event.key == pygame.K_ESCAPE):
+                    pygame.quit()
+                    sys.exit()
+                elif (event.type == pygame.KEYDOWN
+                    and event.key == pygame.K_RETURN
+                    and not isHiScore):
+                    return scr_size, level_size
+                elif (event.type == pygame.KEYDOWN
+                    and event.key in Keyboard.keys.keys()
+                    and len(nameBuffer) < 8):
+                    nameBuffer.append(Keyboard.keys[event.key])
+                    name = ''.join(nameBuffer)
+                elif (event.type == pygame.KEYDOWN
+                    and event.key == pygame.K_BACKSPACE
+                    and len(nameBuffer) > 0):
+                    nameBuffer.pop()
+                    name = ''.join(nameBuffer)
+                elif (event.type == pygame.KEYDOWN
+                    and event.key == pygame.K_RETURN
+                    and len(name) > 0):
+                    Database.setScore(hiScores, (name, score, accuracy))
+                    return scr_size, level_size, id
+
+        else : # 로그인 상태 기록 저장(화면을 만들어야 함)
+            data = {"id": id, "score": score, "accuracy": accuracy}
+            req = grequests.post(url + '/save_record/', json=data)
+            res = grequests.map([req])
+            print(res[0].content)
+            return scr_size, level_size, id
+
+        if isHiScore: # 로그인 상태일 때, 수정 필요
             hiScoreText = font.render('HIGH SCORE!', 1, RED)
             hiScorePos = hiScoreText.get_rect(
                 midbottom=screen.get_rect().center)
@@ -661,8 +891,24 @@ def main(scr, level):
             textOverlay = zip([hiScoreText, scoreText,
                                enterNameText, nameText],
                               [hiScorePos, scorePos,
-                               enterNamePos, namePos])
-        else:
+                               enterNamePos, namePos])   
+        
+        elif showLogin or showCreateaccount:
+            idText = font.render('ID', 1, RED)
+            idPos = idText.get_rect(
+                midbottom=screen.get_rect().center)
+            inputidText = font.render(id, 1, WHITE)
+            inputidPos = inputidText.get_rect(midtop=idPos.midbottom)
+            pwText = font.render('PASSWORD', 1, RED)
+            pwPos = pwText.get_rect(midtop=inputidPos.midbottom)
+            inputpwText = font.render(password, 1, WHITE)
+            inputpwPos = inputpwText.get_rect(midtop=pwPos.midbottom)
+            textOverlay = zip([idText, inputidText,
+                               pwText, inputpwText],
+                              [idPos, inputidPos,
+                               pwPos, inputpwPos])   
+        
+        elif id == '':
             gameOverText = font.render('GAME OVER', 1, WHITE)
             gameOverPos = gameOverText.get_rect(
                 center=screen.get_rect().center)
