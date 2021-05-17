@@ -668,14 +668,16 @@ def main(scr, level, id):
                                1, WHITE)
         scoreText = font.render("Score: " + str(score), 1, WHITE)
         bombText = font.render("Bombs: " + str(bombsHeld), 1, WHITE)
+        coinText = font.render("Coins: "+ str(coinsHeld),1,WHITE)
 
         wavePos = waveText.get_rect(topleft=screen.get_rect().topleft)
         leftPos = leftText.get_rect(midtop=screen.get_rect().midtop)
         scorePos = scoreText.get_rect(topright=screen.get_rect().topright)
         bombPos = bombText.get_rect(bottomleft=screen.get_rect().bottomleft)
+        coinPos = coinText.get_rect(bottomright=screen.get_rect().bottomright)
 
-        text = [waveText, leftText, scoreText, bombText]
-        textposition = [wavePos, leftPos, scorePos, bombPos]
+        text = [waveText, leftText, scoreText, bombText,coinText]
+        textposition = [wavePos, leftPos, scorePos, bombPos,coinPos]
 
         #5초동안 doublemissile상태를 유지
         if doublemissile:
