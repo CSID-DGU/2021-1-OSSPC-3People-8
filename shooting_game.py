@@ -300,9 +300,16 @@ def main(scr, level, id):
                     ship.alive = False
                 elif selection == 4 and id == '' :
                     hiScores = Database.getScores()
-                    print(hiScores)
+                    hiScores_local = []
+                    for i in range(len(hiScores)):
+                        score_id = hiScores[i][0]
+                        score_score = hiScores[i][1]
+                        score_accuracy = round(float(hiScores[i][2])*100, 2)
+                        hiScores_local.append([score_id, score_score, str(score_accuracy)+"%"])
+                    hiScores_local = sorted(hiScores_local, key=lambda h: h[1], reverse=True)
+                    print(hiScores_local)
                     highScoreTexts = [font.render("NAME", 1, RED), font.render("SCORE", 1, RED), font.render("ACCURACY", 1, RED)]
-                    for hs in hiScores:
+                    for hs in hiScores_local:
                         highScoreTexts.extend([font.render(str(hs[x]), 1, WHITE) for x in range(3)])
                         highScorePos.extend([highScoreTexts[x].get_rect(
                         topleft=highScorePos[x].bottomleft) for x in range(-3, 0)])
@@ -315,7 +322,9 @@ def main(scr, level, id):
                     for i in range(len(Scores)) :
                         if i % 3 == 0 : score_id = Scores[i][2:-1]
                         elif i % 3 == 1 : score_score = int(Scores[i][:])
-                        else : hiScores.append([score_id, score_score, Scores[i][:-1]])
+                        elif i % 3 == 2:
+                            score_accuracy = round(float(Scores[i][:-1])*100, 2)
+                            hiScores.append([score_id, score_score, str(score_accuracy)+"%"])
                     hiScores = sorted(hiScores, key=lambda h: h[1], reverse=True)
                     print(hiScores)
                     highScoreTexts = [font.render("NAME", 1, RED), font.render("SCORE", 1, RED), font.render("ACCURACY", 1, RED)]
@@ -482,9 +491,16 @@ def main(scr, level, id):
                                 break
                             elif selection == 2 and id == '' :
                                 hiScores = Database.getScores()
-                                print(hiScores)
+                                hiScores_local = []
+                                for i in range(len(hiScores)):
+                                    score_id = hiScores[i][0]
+                                    score_score = hiScores[i][1]
+                                    score_accuracy = round(float(hiScores[i][2])*100, 2)
+                                    hiScores_local.append([score_id, score_score, str(score_accuracy)+"%"])
+                                hiScores_local = sorted(hiScores_local, key=lambda h: h[1], reverse=True)
+                                print(hiScores_local)
                                 highScoreTexts = [font.render("NAME", 1, RED), font.render("SCORE", 1, RED), font.render("ACCURACY", 1, RED)]
-                                for hs in hiScores:
+                                for hs in hiScores_local:
                                     highScoreTexts.extend([font.render(str(hs[x]), 1, WHITE) for x in range(3)])
                                     highScorePos.extend([highScoreTexts[x].get_rect(
                                     topleft=highScorePos[x].bottomleft) for x in range(-3, 0)])
@@ -497,7 +513,9 @@ def main(scr, level, id):
                                 for i in range(len(Scores)) :
                                     if i % 3 == 0 : score_id = Scores[i][2:-1]
                                     elif i % 3 == 1 : score_score = Scores[i][:]
-                                    else : hiScores.append([score_id, score_score, float(Scores[i][:-1])])
+                                    elif i % 3 == 2:
+                                        score_accuracy = round(float(Scores[i][:-1])*100, 2)
+                                        hiScores.append([score_id, score_score, str(score_accuracy)+"%"])
                                 hiScores = sorted(hiScores, key=lambda h: h[1], reverse=True)
                                 print(hiScores)
                                 highScoreTexts = [font.render("NAME", 1, RED), font.render("SCORE", 1, RED), font.render("ACCURACY", 1, RED)]
