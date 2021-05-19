@@ -137,7 +137,7 @@ def main(scr, level, id):
     curTime = 0
     aliensThisWave, aliensLeftThisWave, Alien.numOffScreen = 10, 10, 10
     wave = 1
-    bombsHeld = 100
+    bombsHeld = 3
     coinsHeld = 0 # coin 구현
     doublemissile = False #doublemissile아이템이 지속되는 동안(5초) 미사일이 두배로 발사됨
     score = 0
@@ -151,8 +151,9 @@ def main(scr, level, id):
     coinTime = 3 * clockTime # coin 구현 (3초에 한번씩 떨어지게..)
     coinTimeLeft = coinTime # coin 구현
     font = pygame.font.Font(None, round(scr_size*0.065))
-
+    font2 = pygame.font.SysFont('hy견고딕', round(scr_size*0.045))
     inMenu = True
+    language = "ENG"
 
     hiScores = Database.getScores()
     highScoreTexts = [font.render("NAME", 1, RED),
@@ -188,38 +189,62 @@ def main(scr, level, id):
     titleRect.midtop = screen.get_rect().inflate(0, -scr_size*0.35).midtop
     pauseRect.midtop = screen.get_rect().inflate(0, -scr_size*0.35).midtop
 
-    startText = font.render('START GAME', 1, WHITE)
+    # 언어 설정
+    if language == "ENG": #기본 설정 영어
+        startText = font.render('START GAME', 1, WHITE)
+        loginText = font.render('LOGIN', 1, WHITE)
+        hiScoreText = font.render('HIGH SCORES', 1, WHITE)
+        createaccountText = font.render('CREATE ACCOUNT', 1, WHITE)
+        fxText = font.render('SOUND FX ', 1, WHITE)
+        fxOnText = font.render('ON', 1, RED)
+        fxOffText = font.render('OFF', 1, RED)
+        musicText = font.render('MUSIC', 1, WHITE)
+        achievementText = font.render('ACHIEVEMENTS', 1, WHITE)
+        musicOnText = font.render('ON', 1, RED)
+        musicOffText = font.render('OFF', 1, RED)
+        quitText = font.render('QUIT', 1, WHITE)
+        restartText = font.render('RESTART', 1, WHITE)
+        languageText = font.render('LANGUAGE', 1, WHITE)
+
+    elif language == "KOR":
+        startText = font2.render('게임 시작', 1, WHITE)
+        loginText = font2.render('로그인', 1, WHITE)
+        hiScoreText = font2.render('최고 점수', 1, WHITE)
+        createaccountText = font2.render('계정 생성', 1, WHITE)
+        fxText = font2.render('효과음 ', 1, WHITE)
+        fxOnText = font2.render('켜짐', 1, RED)
+        fxOffText = font2.render('꺼짐', 1, RED)
+        musicText = font2.render('음악', 1, WHITE)
+        achievementText = font2.render('업적', 1, WHITE)
+        musicOnText = font2.render('켜짐', 1, RED)
+        musicOffText = font2.render('꺼짐', 1, RED)
+        quitText = font2.render('종료', 1, WHITE)
+        restartText = font2.render('다시 시작', 1, WHITE)
+        languageText = font2.render('언어', 1, WHITE)
+
     startPos = startText.get_rect(midtop=titleRect.inflate(0, scr_size*0.15).midbottom)
-    loginText = font.render('LOGIN', 1, WHITE)
-    hiScoreText = font.render('HIGH SCORES', 1, WHITE)
-    createaccountText = font.render('CREATE ACCOUNT', 1, WHITE)
     loginPos = loginText.get_rect(topleft=startPos.bottomleft)
     createaccountPos = createaccountText.get_rect(topleft=loginPos.bottomleft)
     if id == '' :
         hiScorePos = hiScoreText.get_rect(topleft=createaccountPos.bottomleft)
     else :
         hiScorePos = hiScoreText.get_rect(topleft=startPos.bottomleft)
-    fxText = font.render('SOUND FX ', 1, WHITE)
     fxPos = fxText.get_rect(topleft=hiScorePos.bottomleft)
-    fxOnText = font.render('ON', 1, RED)
-    fxOffText = font.render('OFF', 1, RED)
     fxOnPos = fxOnText.get_rect(topleft=fxPos.topright)
     fxOffPos = fxOffText.get_rect(topleft=fxPos.topright)
-    musicText = font.render('MUSIC', 1, WHITE)
     musicPos = fxText.get_rect(topleft=fxPos.bottomleft)
-    achievementText = font.render('ACHIEVEMENTS', 1, WHITE)
     achievementPos = achievementText.get_rect(topleft=musicPos.bottomleft)
-    musicOnText = font.render('ON', 1, RED)
-    musicOffText = font.render('OFF', 1, RED)
     musicOnPos = musicOnText.get_rect(topleft=musicPos.topright)
     musicOffPos = musicOffText.get_rect(topleft=musicPos.topright)
-    quitText = font.render('QUIT', 1, WHITE)
     if id == '':
         quitPos = quitText.get_rect(topleft=musicPos.bottomleft)
     else:
         quitPos = quitText.get_rect(topleft=achievementPos.bottomleft)
     selectText = font.render('> ', 1, WHITE)
     selectPos = selectText.get_rect(topright=startPos.topleft)
+    restartPos = restartText.get_rect(bottomleft=hiScorePos.topleft)
+    languagePos = languageText.get_rect(topleft=quitPos.bottomleft)
+    ### 언어 설정 끝
 
     selection = 1
     showHiScores = False
@@ -230,9 +255,9 @@ def main(scr, level, id):
     music = Database.getSound(music=True)
 
     if id != '':
-        menuDict = {1: startPos, 2: hiScorePos, 3: fxPos, 4: musicPos, 5: achievementPos , 6: quitPos}
+        menuDict = {1: startPos, 2: hiScorePos, 3: fxPos, 4: musicPos, 5: achievementPos , 6: quitPos, 7: languagePos}
     else :
-        menuDict = {1: startPos, 2:loginPos, 3:createaccountPos, 4: hiScorePos, 5: fxPos, 6: musicPos, 7: quitPos}
+        menuDict = {1: startPos, 2:loginPos, 3:createaccountPos, 4: hiScorePos, 5: fxPos, 6: musicPos, 7: quitPos, 8: languagePos}
 
 
 
@@ -252,8 +277,8 @@ def main(scr, level, id):
     #여기까지 버튼 구현
 
     # pause 구현
-    restartText = font.render('RESTART', 1, WHITE)
-    restartPos = restartText.get_rect(bottomleft=hiScorePos.topleft)
+    # restartText = font.render('RESTART', 1, WHITE)
+    # restartPos = restartText.get_rect(bottomleft=hiScorePos.topleft)
 
     if music and pygame.mixer:
         pygame.mixer.music.play(loops=-1)
@@ -350,6 +375,11 @@ def main(scr, level, id):
                 elif (selection == 7 and id == '') or (selection == 6 and id != ''):
                      pygame.quit()
                      sys.exit()
+                elif (selection == 8 and id == '' and language == "ENG") or (selection == 7 and id != '' and language == "ENG"):
+                    language = "KOR"
+                elif (selection == 8 and id == '' and language == "KOR") or (selection == 7 and id != '' and language == "KOR"):
+                    language = "ENG"
+
             elif (event.type == pygame.KEYDOWN
                   and event.key == pygame.K_UP
                   and selection > 1
@@ -371,24 +401,58 @@ def main(scr, level, id):
             textOverlays = zip(achieveTexts, achievePos)
         elif id == '' :
             textOverlays = zip([startText, loginText, hiScoreText, createaccountText, fxText,
-                                musicText, quitText, selectText,
+                                musicText, quitText, languageText, selectText,
                                 fxOnText if soundFX else fxOffText,
                                 musicOnText if music else musicOffText],
                                [startPos, loginPos, hiScorePos, createaccountPos, fxPos,
-                                musicPos, quitPos, selectPos,
+                                musicPos, quitPos, languagePos, selectPos,
                                 fxOnPos if soundFX else fxOffPos,
                                 musicOnPos if music else musicOffPos])
             screen.blit(title, titleRect)
         else:
             textOverlays = zip([startText, hiScoreText, fxText,
-                                musicText, achievementText, quitText, selectText,
+                                musicText, achievementText, quitText, languageText, selectText,
                                 fxOnText if soundFX else fxOffText,
                                 musicOnText if music else musicOffText],
                                [startPos, hiScorePos, fxPos,
-                                musicPos, achievementPos, quitPos, selectPos,
+                                musicPos, achievementPos, quitPos, languagePos, selectPos,
                                 fxOnPos if soundFX else fxOffPos,
                                 musicOnPos if music else musicOffPos])
             screen.blit(title, titleRect)
+
+        #Text Update
+        if language == "ENG": #기본 설정 영어
+            startText = font.render('START GAME', 1, WHITE)
+            loginText = font.render('LOGIN', 1, WHITE)
+            hiScoreText = font.render('HIGH SCORES', 1, WHITE)
+            createaccountText = font.render('CREATE ACCOUNT', 1, WHITE)
+            fxText = font.render('SOUND FX ', 1, WHITE)
+            fxOnText = font.render('ON', 1, RED)
+            fxOffText = font.render('OFF', 1, RED)
+            musicText = font.render('MUSIC', 1, WHITE)
+            achievementText = font.render('ACHIEVEMENTS', 1, WHITE)
+            musicOnText = font.render('ON', 1, RED)
+            musicOffText = font.render('OFF', 1, RED)
+            quitText = font.render('QUIT', 1, WHITE)
+            restartText = font.render('RESTART', 1, WHITE)
+            languageText = font.render('LANGUAGE', 1, WHITE)
+
+        if language == "KOR":
+            startText = font2.render('게임 시작', 1, WHITE)
+            loginText = font2.render('로그인', 1, WHITE)
+            hiScoreText = font2.render('최고 점수', 1, WHITE)
+            createaccountText = font2.render('계정 생성', 1, WHITE)
+            fxText = font2.render('효과음 ', 1, WHITE)
+            fxOnText = font2.render('켜짐', 1, RED)
+            fxOffText = font2.render('꺼짐', 1, RED)
+            musicText = font2.render('음악', 1, WHITE)
+            achievementText = font2.render('업적', 1, WHITE)
+            musicOnText = font2.render('켜짐', 1, RED)
+            musicOffText = font2.render('꺼짐', 1, RED)
+            quitText = font2.render('종료', 1, WHITE)
+            restartText = font2.render('다시 시작', 1, WHITE)
+            languageText = font2.render('언어', 1, WHITE)
+
         for txt, pos in textOverlays:
             screen.blit(txt, pos)
 
