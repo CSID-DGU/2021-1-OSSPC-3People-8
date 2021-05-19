@@ -137,7 +137,7 @@ def main(scr, level, id):
     curTime = 0
     aliensThisWave, aliensLeftThisWave, Alien.numOffScreen = 10, 10, 10
     wave = 1
-    bombsHeld = 3
+    bombsHeld = 100
     coinsHeld = 0 # coin 구현
     doublemissile = False #doublemissile아이템이 지속되는 동안(5초) 미사일이 두배로 발사됨
     score = 0
@@ -214,7 +214,10 @@ def main(scr, level, id):
     musicOnPos = musicOnText.get_rect(topleft=musicPos.topright)
     musicOffPos = musicOffText.get_rect(topleft=musicPos.topright)
     quitText = font.render('QUIT', 1, WHITE)
-    quitPos = quitText.get_rect(topleft=achievementPos.bottomleft)
+    if id == '':
+        quitPos = quitText.get_rect(topleft=musicPos.bottomleft)
+    else:
+        quitPos = quitText.get_rect(topleft=achievementPos.bottomleft)
     selectText = font.render('> ', 1, WHITE)
     selectPos = selectText.get_rect(topright=startPos.topleft)
 
@@ -229,9 +232,9 @@ def main(scr, level, id):
     if id != '':
         menuDict = {1: startPos, 2: hiScorePos, 3: fxPos, 4: musicPos, 5: achievementPos , 6: quitPos}
     else :
-        menuDict = {1: startPos, 2:loginPos, 3:createaccountPos, 4: hiScorePos, 5: fxPos, 6: musicPos, 7: achievementPos, 8: quitPos}
+        menuDict = {1: startPos, 2:loginPos, 3:createaccountPos, 4: hiScorePos, 5: fxPos, 6: musicPos, 7: quitPos}
 
-    
+
 
     # 버튼 구현
     modeImg_one = pygame.image.load("data/mode1.png")
@@ -255,6 +258,7 @@ def main(scr, level, id):
     if music and pygame.mixer:
         pygame.mixer.music.play(loops=-1)
 
+    # 메인 메뉴
     while inMenu:
         scr_x , scr_y = pygame.display.get_surface().get_size()
         if scr_size != scr_x or scr_size != scr_y :
@@ -332,9 +336,9 @@ def main(scr, level, id):
                     else:
                         pygame.mixer.music.stop()
                     Database.setSound(int(music), music=True)
-                elif ((selection == 7 and id == '') or (selection == 5 and id != '')) and pygame.mixer:
+                elif (selection == 5 and id != '') and pygame.mixer:
                     showAchievement = True
-                elif (selection == 8 and id == '') or (selection == 6 and id != ''):
+                elif (selection == 7 and id == '') or (selection == 6 and id != ''):
                      pygame.quit()
                      sys.exit()
             elif (event.type == pygame.KEYDOWN
@@ -358,11 +362,11 @@ def main(scr, level, id):
             textOverlays = zip(achieveTexts, achievePos)
         elif id == '' :
             textOverlays = zip([startText, loginText, hiScoreText, createaccountText, fxText,
-                                musicText, achievementText, quitText, selectText,
+                                musicText, quitText, selectText,
                                 fxOnText if soundFX else fxOffText,
                                 musicOnText if music else musicOffText],
                                [startPos, loginPos, hiScorePos, createaccountPos, fxPos,
-                                musicPos, achievementPos, quitPos, selectPos,
+                                musicPos, quitPos, selectPos,
                                 fxOnPos if soundFX else fxOffPos,
                                 musicOnPos if music else musicOffPos])
             screen.blit(title, titleRect)
@@ -378,7 +382,6 @@ def main(scr, level, id):
             screen.blit(title, titleRect)
         for txt, pos in textOverlays:
             screen.blit(txt, pos)
-        # 여기까지 pause 구현
 
         #버튼 구현
         button1Pos = 0.08 #mode1
@@ -388,7 +391,7 @@ def main(scr, level, id):
         modeButton_one = Button(screen,modeImg_one,round(scr_size*button1Pos),round(scr_size*0.9),round(scr_size*0.08),round(scr_size*0.04),clickmodeImg_one,round(scr_size*(button1Pos-0.01)),round(scr_size*0.896),'mode_one') # 버튼 클릭시 실행하고 싶은 파일을 'mode_one'에 써주면 된다.
         modeButton_two = Button(screen,modeImg_two,round(scr_size*button2Pos),round(scr_size*0.9),round(scr_size*0.08),round(scr_size*0.04),clickmodeImg_two,round(scr_size*(button2Pos-0.01)),round(scr_size*0.896),'mode_two')
         quitButton = Button(screen,quitImg,round(scr_size*button3Pos),round(scr_size*0.9),round(scr_size*0.08),round(scr_size*0.04),clickQuitImg,round(scr_size*(button3Pos-0.01)),round(scr_size*0.896),'quitgame')
-        
+
         if modeButton_one.lvl_size == -1 :
             return scr_size, 1, id
         if modeButton_two.lvl_size == -2 :
@@ -449,7 +452,10 @@ def main(scr, level, id):
             # pause 구현부분
             elif (event.type == pygame.KEYDOWN and event.key == pygame.K_p):
                 inPmenu = True
-                menuDict = {1: restartPos, 2: hiScorePos, 3: fxPos, 4: musicPos, 5: achievementPos , 6: quitPos}
+                if id != '':
+                    menuDict = {1: restartPos, 2: hiScorePos, 3: fxPos, 4: musicPos, 5: achievementPos , 6: quitPos}
+                else:
+                    menuDict = {1: restartPos, 2: hiScorePos, 3: fxPos, 4: musicPos, 5: quitPos}
                 selectPos = selectText.get_rect(topright=restartPos.topleft)
                 while inPmenu:
                     clock.tick(clockTime)
@@ -512,9 +518,12 @@ def main(scr, level, id):
                                 else:
                                     pygame.mixer.music.stop()
                                 Database.setSound(int(music), music=True)
-                            elif selection == 5:
+                            elif selection == 5 and id != '':
                                 showAchievement = True
-                            elif selection == 6:
+                            elif selection == 5 and id == '':
+                                pygame.quit()
+                                sys.exit()
+                            elif selection == 6 and id != '':
                                 pygame.quit()
                                 sys.exit()
                         elif (event.type == pygame.KEYDOWN
@@ -536,6 +545,16 @@ def main(scr, level, id):
                         textOverlays = zip(highScoreTexts, highScorePos)
                     elif showAchievement:
                         textOverlays = zip(achieveTexts, achievePos)
+                    elif id == '':
+                        textOverlays = zip([restartText, hiScoreText, fxText,
+                                            musicText, quitText, selectText,
+                                            fxOnText if soundFX else fxOffText,
+                                            musicOnText if music else musicOffText],
+                                        [restartPos, hiScorePos, fxPos,
+                                            musicPos, quitPos, selectPos,
+                                            fxOnPos if soundFX else fxOffPos,
+                                            musicOnPos if music else musicOffPos])
+                        screen.blit(pause, titleRect)
                     else:
                         textOverlays = zip([restartText, hiScoreText, fxText,
                                             musicText, achievementText, quitText, selectText,
@@ -620,7 +639,7 @@ def main(scr, level, id):
                     ship.shieldUp = False
                 else:
                     # life 구현 부분
-                    if ship.lives ==1:    
+                    if ship.lives ==1:
                         ship.alive = False
                         ship.remove(allsprites)
                         Explosion.position(ship.rect.center)
@@ -742,7 +761,7 @@ def main(scr, level, id):
         for txt, pos in textOverlays:
             screen.blit(txt, pos)
         # life 구현
-        ship.draw_lives(screen,scr_size-80,scr_size/50)  
+        ship.draw_lives(screen,scr_size-80,scr_size/50)
         pygame.display.flip()
 
     accuracy = round(score / missilesFired, 4) if missilesFired > 0 else 0.0
@@ -813,7 +832,7 @@ def main(scr, level, id):
                         else :
                             print('login failed')
                             return scr_size, level_size, ''
-        
+
         elif showCreateaccount == True :
             for event in pygame.event.get():
                 if is_input_id :
@@ -837,7 +856,7 @@ def main(scr, level, id):
                         and event.key == pygame.K_RETURN
                         and len(id) > 0):
                         is_input_id = False
-                
+
                 else :
                     if (event.type == pygame.QUIT
                         or not showCreateaccount
@@ -869,7 +888,7 @@ def main(scr, level, id):
                         else :
                             print('Exist same ID')
                             return scr_size, level_size, ''
-                            
+
 
         # hiscore event handling
         elif id == '' :
@@ -920,8 +939,8 @@ def main(scr, level, id):
             textOverlay = zip([hiScoreText, scoreText,
                                enterNameText, nameText],
                               [hiScorePos, scorePos,
-                               enterNamePos, namePos])   
-        
+                               enterNamePos, namePos])
+
         elif showLogin or showCreateaccount:
             idText = font.render('ID', 1, RED)
             idPos = idText.get_rect(
@@ -935,8 +954,8 @@ def main(scr, level, id):
             textOverlay = zip([idText, inputidText,
                                pwText, inputpwText],
                               [idPos, inputidPos,
-                               pwPos, inputpwPos])   
-        
+                               pwPos, inputpwPos])
+
         elif id == '':
             gameOverText = font.render('GAME OVER', 1, WHITE)
             gameOverPos = gameOverText.get_rect(
