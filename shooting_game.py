@@ -331,6 +331,14 @@ def main(scr, level, id):
                         score_score = hiScores[i][1]
                         score_accuracy = round(float(hiScores[i][2])*100, 2)
                         hiScores_local.append([score_id, score_score, str(score_accuracy)+"%"])
+                    # 중복 아이디 제거
+                    hiScores_local = sorted(hiScores_local, key=lambda h: h[1])
+                    for i in range(len(hiScores_local)-1):
+                        score_id = hiScores_local[i][0]
+                        for j in range(i+1, len(hiScores_local)):
+                            if score_id == hiScores_local[j][0]:
+                                hiScores_local[i][2] = "delete";
+                    hiScores_local = [x for x in hiScores_local if x[2] != "delete"]
                     hiScores_local = sorted(hiScores_local, key=lambda h: h[1], reverse=True)
                     print(hiScores_local)
                     highScoreTexts = [font.render("NAME", 1, RED), font.render("SCORE", 1, RED), font.render("ACCURACY", 1, RED)]
@@ -350,6 +358,14 @@ def main(scr, level, id):
                         elif i % 3 == 2:
                             score_accuracy = round(float(Scores[i][:-1])*100, 2)
                             hiScores.append([score_id, score_score, str(score_accuracy)+"%"])
+                    # 중복 아이디 제거
+                    hiScores = sorted(hiScores, key=lambda h: h[1])
+                    for i in range(len(hiScores)-1):
+                        score_id = hiScores[i][0]
+                        for j in range(i+1, len(hiScores)):
+                            if score_id == hiScores[j][0]:
+                                hiScores[i][2] = "delete";
+                    hiScores = [x for x in hiScores if x[2] != "delete"]
                     hiScores = sorted(hiScores, key=lambda h: h[1], reverse=True)
                     print(hiScores)
                     highScoreTexts = [font.render("NAME", 1, RED), font.render("SCORE", 1, RED), font.render("ACCURACY", 1, RED)]
@@ -561,6 +577,14 @@ def main(scr, level, id):
                                     score_score = hiScores[i][1]
                                     score_accuracy = round(float(hiScores[i][2])*100, 2)
                                     hiScores_local.append([score_id, score_score, str(score_accuracy)+"%"])
+                                # 중복 아이디 제거
+                                hiScores_local = sorted(hiScores_local, key=lambda h: h[1])
+                                for i in range(len(hiScores_local)-1):
+                                    score_id = hiScores_local[i][0]
+                                    for j in range(i+1, len(hiScores_local)):
+                                        if score_id == hiScores_local[j][0]:
+                                            hiScores_local[i][2] = "delete";
+                                hiScores_local = [x for x in hiScores_local if x[2] != "delete"]
                                 hiScores_local = sorted(hiScores_local, key=lambda h: h[1], reverse=True)
                                 print(hiScores_local)
                                 highScoreTexts = [font.render("NAME", 1, RED), font.render("SCORE", 1, RED), font.render("ACCURACY", 1, RED)]
@@ -576,10 +600,18 @@ def main(scr, level, id):
                                 hiScores = []
                                 for i in range(len(Scores)) :
                                     if i % 3 == 0 : score_id = Scores[i][2:-1]
-                                    elif i % 3 == 1 : score_score = Scores[i][:]
+                                    elif i % 3 == 1 : score_score = int(Scores[i][:])
                                     elif i % 3 == 2:
                                         score_accuracy = round(float(Scores[i][:-1])*100, 2)
                                         hiScores.append([score_id, score_score, str(score_accuracy)+"%"])
+                                # 중복 아이디 제거
+                                hiScores = sorted(hiScores, key=lambda h: h[1])
+                                for i in range(len(hiScores)-1):
+                                    score_id = hiScores[i][0]
+                                    for j in range(i+1, len(hiScores)):
+                                        if score_id == hiScores[j][0]:
+                                            hiScores[i][2] = "delete";
+                                hiScores = [x for x in hiScores if x[2] != "delete"]
                                 hiScores = sorted(hiScores, key=lambda h: h[1], reverse=True)
                                 print(hiScores)
                                 highScoreTexts = [font.render("NAME", 1, RED), font.render("SCORE", 1, RED), font.render("ACCURACY", 1, RED)]
