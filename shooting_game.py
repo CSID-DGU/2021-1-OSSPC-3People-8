@@ -133,20 +133,21 @@ def main(scr, level, id):
 
     alienPeriod = clockTime // 2
     curTime = 0
-    aliensThisWave, aliensLeftThisWave, Alien.numOffScreen = 1, 1, 10
+    aliensThisWave, aliensLeftThisWave, Alien.numOffScreen = 10, 10, 10
     wave = 1
     bombsHeld = 3
     coinsHeld = 0 # coin 구현
     doublemissile = False #doublemissile아이템이 지속되는 동안(5초) 미사일이 두배로 발사됨
+    Itemdouble = False
     score = 0
     missilesFired = 0
     powerupTime = 10 * clockTime
     powerupTimeLeft = powerupTime
-    betweenWaveTime = 3 * clockTime
+    betweenWaveTime = 5 * clockTime
     betweenWaveCount = betweenWaveTime
-    betweenDoubleTime = 5 * clockTime
+    betweenDoubleTime = 8 * clockTime
     betweenDoubleCount = betweenDoubleTime
-    coinTime = 3 * clockTime # coin 구현 (3초에 한번씩 떨어지게..)
+    coinTime = 8 * clockTime # coin 구현 
     coinTimeLeft = coinTime # coin 구현
     font = pygame.font.Font(None, round(scr_size*0.065))
 
@@ -625,6 +626,10 @@ def main(scr, level, id):
                 double_on = False
                 while inCoin:
                     clock.tick(clockTime)
+                    bombCoinText = font.render("Bombs: " + str(bombsHeld), 1, WHITE)
+                    coinShopText = font.render("Coins: "+ str(coinsHeld),1,WHITE)
+                    bombCoinPos = bombCoinText.get_rect(bottomleft=screen.get_rect().bottomleft)
+                    coinShopPos = coinShopText.get_rect(bottomright=screen.get_rect().bottomright)  
                     screen.blit(
                         background, (0, 0), area=pygame.Rect(
                             0, backgroundLoc, scr_size, scr_size))
@@ -640,25 +645,25 @@ def main(scr, level, id):
                             if selection == 1:
                                 inCoin = False
                                 break
-                            elif selection == 2:    # 여기서 구매 엔터 누르때 마다 str()이랑 extend로 바뀌는거 구현 하면 끝
+                            elif selection == 2:    
                                 if coinsHeld >0:
                                     bombsHeld +=1
                                     coinsHeld -=1
                                 else:
                                     continue
                             elif selection == 3:
-                                if coinsHeld >0:
-                                    doublemissile = True
-                                    double_on = True
+                                if (coinsHeld>0 and shield_limit==0) :
+                                    ship.shieldUp = True
+                                    shield_on = True
                                     coinsHeld -=1
+                                    shield_limit +=1
                                 else:
                                     continue
                             elif selection == 4 :
-                                if (coinsHeld >0 and shield_limit==0):
+                                if coinsHeld >0 :
                                     coinsHeld -=1
-                                    ship.shieldUp = True
-                                    shield_on = True
-                                    shield_limit +=1
+                                    doublemissile = True
+                                    double_on = True
                                 else:
                                     continue
                         elif (event.type == pygame.KEYDOWN
@@ -672,19 +677,21 @@ def main(scr, level, id):
                     
                     selectItemPos = selectItem.get_rect(midtop = ItemDict[selection].midbottom)
 
-                    textOverlays = zip([continueText,bombText_Item,shieldText,doubleText,selectItem],
-                                    [continuePos,bombItemPos,shieldPos,doublePos,selectItemPos])
+                    if not shield_on :
+                        screen.blit(shield_img, shieldRect)
+                    elif shield_on: 
+                        screen.blit(shield_on_img,shieldOnRect)
+                    if not double_on:
+                        screen.blit(double_img, doubleRect)
+                    elif double_on:
+                        screen.blit(double_on_img, doubleOnRect)
+                    
+                    textOverlays = zip([continueText,bombText_Item,shieldText,doubleText,selectItem,bombCoinText,coinShopText],
+                                    [continuePos,bombItemPos,shieldPos,doublePos,selectItemPos,bombCoinPos,coinShopPos])
                     screen.blit(next, nextRect)
                     screen.blit(continue_img, continueRect)
                     screen.blit(bomb_img, bombRect)
-                    if not shield_on :
-                        screen.blit(shield_img, shieldRect)
-                    else:
-                        screen.blit(shield_on_img, shieldOnRect)
-                    if not double_on:
-                        screen.blit(double_img, doubleRect)
-                    else:
-                        screen.blit(double_on_img, doubleOnRect)
+                    
                     for txt, pos in textOverlays:
                         screen.blit(txt, pos)
                     pygame.display.flip()
@@ -825,7 +832,13 @@ def main(scr, level, id):
             elif betweenDoubleCount == 0:
                 doublemissile = False
                 betweenDoubleCount = betweenDoubleTime
-        
+        if Itemdouble:
+            if betweenDoubleCount > 0:
+                betweenDoubleCount -= 1
+            elif betweenDoubleCount == 0:
+                doublemissile = False
+                Itemdouble = False
+                betweenDoubleCount = betweenDoubleTime
      # Detertmine when to move to next wave
         if aliensLeftThisWave <= 0:  
             if betweenWaveCount > 0:
@@ -866,6 +879,8 @@ def main(scr, level, id):
                     Alien.pool.add([Crawly() for _ in range(5)])
                 wave += 1
                 betweenWaveCount = betweenWaveTime
+                if doublemissile:
+                    Itemdouble = True
 
                 selectPos = selectText.get_rect(topright=menuDict[selection].topleft)
                 if showHiScores:
