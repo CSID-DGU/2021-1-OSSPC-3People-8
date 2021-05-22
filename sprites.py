@@ -175,13 +175,13 @@ class Ship(MasterSprite):
         keyState = pygame.key.get_pressed()
         self.vert = 0
         self.horiz = 0
-        if keyState[pygame.K_UP]:
+        if keyState[pygame.K_w]:
             self.vert -= MasterSprite.speed *scr_size*0.004
-        if keyState[pygame.K_LEFT]:
+        if keyState[pygame.K_a]:
             self.horiz -= MasterSprite.speed *scr_size*0.004
-        if keyState[pygame.K_DOWN]:
+        if keyState[pygame.K_s]:
             self.vert += MasterSprite.speed *scr_size*0.004
-        if keyState[pygame.K_RIGHT]:
+        if keyState[pygame.K_d]:
             self.horiz += MasterSprite.speed *scr_size*0.004
 
     def update(self):
