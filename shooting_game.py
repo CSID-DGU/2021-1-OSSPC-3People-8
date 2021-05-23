@@ -238,6 +238,7 @@ def main(scr, level, id):
         quitPos = quitText.get_rect(topleft=musicPos.bottomleft)
     else:
         quitPos = quitText.get_rect(topleft=achievementPos.bottomleft)    
+
     selectText = font.render('> ', 1, WHITE)
     selectPos = selectText.get_rect(topright=startPos.topleft)
     restartPos = restartText.get_rect(bottomleft=hiScorePos.topleft)
@@ -340,10 +341,11 @@ def main(scr, level, id):
     clickmodeImg_two = pygame.transform.scale(clickmodeImg_two, (round(clickmodeImg_two.get_width()*scr_size/500), round(clickmodeImg_two.get_height()*scr_size/500)))
     clickQuitImg = pygame.image.load("data/clickedQuitIcon.png")
     clickQuitImg = pygame.transform.scale(clickQuitImg, (round(clickQuitImg.get_width()*scr_size/500), round(clickQuitImg.get_height()*scr_size/500)))
-    
+
     if music and pygame.mixer:
         pygame.mixer.music.play(loops=-1)
 
+    # 메인 메뉴
     while inMenu:
         scr_x , scr_y = pygame.display.get_surface().get_size()
         if scr_size != scr_x or scr_size != scr_y :
@@ -391,7 +393,8 @@ def main(scr, level, id):
                         score_score = hiScores[i][1]
                         score_accuracy = round(float(hiScores[i][2])*100, 2)
                         hiScores_local.append([score_id, score_score, str(score_accuracy)+"%"])
-                     # 중복 아이디 제거
+                        
+                    # 중복 아이디 제거
                     hiScores_local = sorted(hiScores_local, key=lambda h: h[1])
                     for i in range(len(hiScores_local)-1):
                         score_id = hiScores_local[i][0]
@@ -450,12 +453,14 @@ def main(scr, level, id):
                     Database.setSound(int(music), music=True)
                 elif (selection == 5 and id != '') and pygame.mixer:
                     showAchievement = True
-                elif ((selection == 7 and id == '') or (selection == 6 and id != '')) and pygame.mixer:
-                    showAchievement = True
+                elif (selection == 7 and id == '') or (selection == 6 and id != ''):
+                     pygame.quit()
+                     sys.exit()
                 elif (selection == 8 and id == '' and language == "ENG") or (selection == 7 and id != '' and language == "ENG"):
                     language = "KOR"
                 elif (selection == 8 and id == '' and language == "KOR") or (selection == 7 and id != '' and language == "KOR"):
                     language = "ENG"
+
             elif (event.type == pygame.KEYDOWN
                   and event.key == pygame.K_UP
                   and selection > 1
@@ -477,24 +482,26 @@ def main(scr, level, id):
             textOverlays = zip(achieveTexts, achievePos)
         elif id == '' :
             textOverlays = zip([startText, loginText, hiScoreText, createaccountText, fxText,
-                                musicText, quitText,languageText, selectText,
+                                musicText, quitText, languageText, selectText,
                                 fxOnText if soundFX else fxOffText,
                                 musicOnText if music else musicOffText],
                                [startPos, loginPos, hiScorePos, createaccountPos, fxPos,
-                                musicPos, quitPos, languagePos,selectPos,
+                                musicPos, quitPos, languagePos, selectPos,
                                 fxOnPos if soundFX else fxOffPos,
                                 musicOnPos if music else musicOffPos])
             screen.blit(title, titleRect)
         else:
             textOverlays = zip([startText, hiScoreText, fxText,
-                                musicText, achievementText, quitText, languageText,selectText,
+
+                                musicText, achievementText, quitText, languageText, selectText,
                                 fxOnText if soundFX else fxOffText,
                                 musicOnText if music else musicOffText],
                                [startPos, hiScorePos, fxPos,
-                                musicPos, achievementPos, quitPos, languagePos,selectPos,
+                                musicPos, achievementPos, quitPos, languagePos, selectPos,
                                 fxOnPos if soundFX else fxOffPos,
                                 musicOnPos if music else musicOffPos])
             screen.blit(title, titleRect)
+
         #Text Update
         if language == "ENG": #기본 설정 영어
             startText = font.render('START GAME', 1, WHITE)
@@ -527,9 +534,9 @@ def main(scr, level, id):
             quitText = font2.render('종료', 1, WHITE)
             restartText = font2.render('다시 시작', 1, WHITE)
             languageText = font2.render('언어', 1, WHITE)
+
         for txt, pos in textOverlays:
             screen.blit(txt, pos)
-
 
         #버튼 구현
         button1Pos = 0.08 #mode1
@@ -539,7 +546,7 @@ def main(scr, level, id):
         modeButton_one = Button(screen,modeImg_one,round(scr_size*button1Pos),round(scr_size*0.9),round(scr_size*0.08),round(scr_size*0.04),clickmodeImg_one,round(scr_size*(button1Pos-0.01)),round(scr_size*0.896),'mode_one') # 버튼 클릭시 실행하고 싶은 파일을 'mode_one'에 써주면 된다.
         modeButton_two = Button(screen,modeImg_two,round(scr_size*button2Pos),round(scr_size*0.9),round(scr_size*0.08),round(scr_size*0.04),clickmodeImg_two,round(scr_size*(button2Pos-0.01)),round(scr_size*0.896),'mode_two')
         quitButton = Button(screen,quitImg,round(scr_size*button3Pos),round(scr_size*0.9),round(scr_size*0.08),round(scr_size*0.04),clickQuitImg,round(scr_size*(button3Pos-0.01)),round(scr_size*0.896),'quitgame')
-        
+
         if modeButton_one.lvl_size == -1 :
             return scr_size, 1, id
         if modeButton_two.lvl_size == -2 :
@@ -893,7 +900,7 @@ def main(scr, level, id):
                     ship.shieldUp = False
                 else:
                     # life 구현 부분
-                    if ship.lives ==1:    
+                    if ship.lives ==1:
                         ship.alive = False
                         ship.remove(allsprites)
                         Explosion.position(ship.rect.center)
@@ -1043,7 +1050,7 @@ def main(scr, level, id):
         for txt, pos in textOverlays:
             screen.blit(txt, pos)
         # life 구현
-        ship.draw_lives(screen,scr_size-100,scr_size/60)  
+        ship.draw_lives(screen,scr_size-80,scr_size/50)
         pygame.display.flip()
 
     accuracy = round(score / missilesFired, 4) if missilesFired > 0 else 0.0
@@ -1114,7 +1121,7 @@ def main(scr, level, id):
                         else :
                             print('login failed')
                             return scr_size, level_size, ''
-        
+
         elif showCreateaccount == True :
             for event in pygame.event.get():
                 if is_input_id :
@@ -1138,7 +1145,7 @@ def main(scr, level, id):
                         and event.key == pygame.K_RETURN
                         and len(id) > 0):
                         is_input_id = False
-                
+
                 else :
                     if (event.type == pygame.QUIT
                         or not showCreateaccount
@@ -1170,7 +1177,7 @@ def main(scr, level, id):
                         else :
                             print('Exist same ID')
                             return scr_size, level_size, ''
-                            
+
 
         # hiscore event handling
         elif id == '' :
@@ -1221,8 +1228,8 @@ def main(scr, level, id):
             textOverlay = zip([hiScoreText, scoreText,
                                enterNameText, nameText],
                               [hiScorePos, scorePos,
-                               enterNamePos, namePos])   
-        
+                               enterNamePos, namePos])
+
         elif showLogin or showCreateaccount:
             idText = font.render('ID', 1, RED)
             idPos = idText.get_rect(
@@ -1236,8 +1243,8 @@ def main(scr, level, id):
             textOverlay = zip([idText, inputidText,
                                pwText, inputpwText],
                               [idPos, inputidPos,
-                               pwPos, inputpwPos])   
-        
+                               pwPos, inputpwPos])
+
         elif id == '':
             gameOverText = font.render('GAME OVER', 1, WHITE)
             gameOverPos = gameOverText.get_rect(
