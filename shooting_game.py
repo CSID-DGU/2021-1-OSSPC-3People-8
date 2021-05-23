@@ -40,16 +40,14 @@ class Button:
 
             elif click[0] and action == 'mode_two':
                 self.lvl_size = -2
-
         else:
             gameDisplay.blit(img_in,(x,y))
-#여기까지 버튼 구현
-
     def draw(self, screen):
         # Blit the text.
         screen.blit(self.txt_surface, (self.rect.x+5, self.rect.y+5))
         # Blit the rect.
         pygame.draw.rect(screen, self.color, self.rect, 2)
+
 
 class Keyboard(object):
     keys = {pygame.K_a: 'A', pygame.K_b: 'B', pygame.K_c: 'C', pygame.K_d: 'D',
@@ -140,15 +138,16 @@ def main(scr, level, id):
     bombsHeld = 3
     coinsHeld = 0 # coin 구현
     doublemissile = False #doublemissile아이템이 지속되는 동안(5초) 미사일이 두배로 발사됨
+    Itemdouble = False
     score = 0
     missilesFired = 0
     powerupTime = 10 * clockTime
     powerupTimeLeft = powerupTime
-    betweenWaveTime = 3 * clockTime
+    betweenWaveTime = 5 * clockTime
     betweenWaveCount = betweenWaveTime
-    betweenDoubleTime = 5 * clockTime
+    betweenDoubleTime = 8 * clockTime
     betweenDoubleCount = betweenDoubleTime
-    coinTime = 3 * clockTime # coin 구현 (3초에 한번씩 떨어지게..)
+    coinTime = 8 * clockTime # coin 구현 
     coinTimeLeft = coinTime # coin 구현
     font = pygame.font.Font(None, round(scr_size*0.065))
     font2 = pygame.font.SysFont('hy견고딕', round(scr_size*0.045))
@@ -188,7 +187,6 @@ def main(scr, level, id):
     pauseRect = pygame.Rect(0, 0, pause.get_width(), pause.get_height())
     titleRect.midtop = screen.get_rect().inflate(0, -scr_size*0.35).midtop
     pauseRect.midtop = screen.get_rect().inflate(0, -scr_size*0.35).midtop
-
     # 언어 설정
     if language == "ENG": #기본 설정 영어
         startText = font.render('START GAME', 1, WHITE)
@@ -239,12 +237,83 @@ def main(scr, level, id):
     if id == '':
         quitPos = quitText.get_rect(topleft=musicPos.bottomleft)
     else:
-        quitPos = quitText.get_rect(topleft=achievementPos.bottomleft)
+        quitPos = quitText.get_rect(topleft=achievementPos.bottomleft)    
+
     selectText = font.render('> ', 1, WHITE)
     selectPos = selectText.get_rect(topright=startPos.topleft)
     restartPos = restartText.get_rect(bottomleft=hiScorePos.topleft)
     languagePos = languageText.get_rect(topleft=quitPos.bottomleft)
     ### 언어 설정 끝
+
+    # Coin shop 준비
+    next,nextRect = load_image('next.png',WHITE)
+    next = pygame.transform.scale(next, (round(next.get_width()*scr_size/200), round(next.get_height()*scr_size/250)))
+    nextRect = pygame.Rect(0, 0, next.get_width(), next.get_height())
+    nextRect.centerx = scr_size*0.5
+    nextRect.centery = scr_size*0.25    
+    
+    continue_img,continueRect = load_image('continue.png',WHITE)
+    continue_img = pygame.transform.scale(continue_img, (round(continue_img.get_width()*scr_size/500), round(continue_img.get_height()*scr_size/500)))
+    continueRect = pygame.Rect(0, 0, continue_img.get_width(), continue_img.get_height())
+    continueRect.centerx = scr_size * 0.2
+    continueRect.centery = scr_size * 0.7
+
+    bomb_img,bombRect = load_image('bomb_click.png')
+    bomb_img = pygame.transform.scale(bomb_img, (round(bomb_img.get_width()*scr_size/500), round(bomb_img.get_height()*scr_size/500)))
+    bombRect = pygame.Rect(0, 0, bomb_img.get_width(), bomb_img.get_height())
+    bombRect.centerx = scr_size * 0.4
+    bombRect.centery = scr_size * 0.7
+
+    shield_img,shieldRect = load_image('shield_click.png')
+    shield_img = pygame.transform.scale(shield_img, (round(shield_img.get_width()*scr_size/500), round(shield_img.get_height()*scr_size/500)))
+    shieldRect = pygame.Rect(0, 0, shield_img.get_width(), shield_img.get_height())
+    shieldRect.centerx = scr_size * 0.6
+    shieldRect.centery = scr_size * 0.7
+    # ---
+    shield_on_img,shieldOnRect = load_image('ship_shield.png')
+    shield_on_img = pygame.transform.scale(shield_on_img, (round(shield_on_img.get_width()*scr_size/500), round(shield_on_img.get_height()*scr_size/500)))
+    shieldOnRect = pygame.Rect(0, 0, shield_on_img.get_width(), shield_on_img.get_height())
+    shieldOnRect.centerx = scr_size * 0.6
+    shieldOnRect.centery = scr_size * 0.7
+
+    double_img,doubleRect = load_image('doublemissile_powerup.png')
+    double_img = pygame.transform.scale(double_img, (round(double_img.get_width()*scr_size/500), round(double_img.get_height()*scr_size/500)))
+    doubleRect = pygame.Rect(0, 0, double_img.get_width(), double_img.get_height())
+    doubleRect.centerx = scr_size * 0.8
+    doubleRect.centery = scr_size * 0.7
+    # ---
+    double_on_img,doubleOnRect = load_image('doublemissile_click.png')
+    double_on_img = pygame.transform.scale(double_on_img, (round(double_on_img.get_width()*scr_size/500), round(double_on_img.get_height()*scr_size/500)))
+    doubleOnRect = pygame.Rect(0, 0, double_on_img.get_width(), double_on_img.get_height())
+    doubleOnRect.centerx = scr_size * 0.8
+    doubleOnRect.centery = scr_size * 0.7
+
+    continueText = font.render('Continue',1,WHITE)
+    continuePos = pygame.Rect(0,0,continueText.get_width(), continueText.get_height())
+    continuePos.centerx = scr_size * 0.2
+    continuePos.centery = scr_size * 0.8
+
+    bombText_Item = font.render('Bomb',1,WHITE)
+    bombItemPos = pygame.Rect(0,0,bombText_Item.get_width(), bombText_Item.get_height())
+    bombItemPos.centerx = scr_size * 0.4
+    bombItemPos.centery = scr_size * 0.8
+
+    shieldText = font.render('Shield',1,WHITE)
+    shieldPos = pygame.Rect(0,0,shieldText.get_width(), shieldText.get_height())
+    shieldPos.centerx = scr_size * 0.6
+    shieldPos.centery = scr_size * 0.8
+
+    doubleText = font.render('Double',1,WHITE)
+    doublePos = pygame.Rect(0,0,doubleText.get_width(), doubleText.get_height())
+    doublePos.centerx = scr_size * 0.8
+    doublePos.centery = scr_size * 0.8
+
+    selectItem = font.render('^',1,WHITE)
+    selectItemPos = pygame.Rect(0,0,selectItem.get_width(), selectItem.get_height())
+    selectItemPos.centerx = scr_size * 0.2
+    selectItemPos.centery = scr_size * 0.8
+    
+    ###########
 
     selection = 1
     showHiScores = False
@@ -259,8 +328,6 @@ def main(scr, level, id):
     else :
         menuDict = {1: startPos, 2:loginPos, 3:createaccountPos, 4: hiScorePos, 5: fxPos, 6: musicPos, 7: quitPos, 8: languagePos}
 
-
-
     # 버튼 구현
     modeImg_one = pygame.image.load("data/mode1.png")
     modeImg_one = pygame.transform.scale(modeImg_one, (round(modeImg_one.get_width()*scr_size/500), round(modeImg_one.get_height()*scr_size/500)))
@@ -274,11 +341,6 @@ def main(scr, level, id):
     clickmodeImg_two = pygame.transform.scale(clickmodeImg_two, (round(clickmodeImg_two.get_width()*scr_size/500), round(clickmodeImg_two.get_height()*scr_size/500)))
     clickQuitImg = pygame.image.load("data/clickedQuitIcon.png")
     clickQuitImg = pygame.transform.scale(clickQuitImg, (round(clickQuitImg.get_width()*scr_size/500), round(clickQuitImg.get_height()*scr_size/500)))
-    #여기까지 버튼 구현
-
-    # pause 구현
-    # restartText = font.render('RESTART', 1, WHITE)
-    # restartPos = restartText.get_rect(bottomleft=hiScorePos.topleft)
 
     if music and pygame.mixer:
         pygame.mixer.music.play(loops=-1)
@@ -331,6 +393,7 @@ def main(scr, level, id):
                         score_score = hiScores[i][1]
                         score_accuracy = round(float(hiScores[i][2])*100, 2)
                         hiScores_local.append([score_id, score_score, str(score_accuracy)+"%"])
+                        
                     # 중복 아이디 제거
                     hiScores_local = sorted(hiScores_local, key=lambda h: h[1])
                     for i in range(len(hiScores_local)-1):
@@ -367,6 +430,8 @@ def main(scr, level, id):
                                 hiScores[i][2] = "delete";
                     hiScores = [x for x in hiScores if x[2] != "delete"]
                     hiScores = sorted(hiScores, key=lambda h: h[1], reverse=True)
+                    print(hiScores)
+                    highScoreTexts = [font.render("NAME", 1, RED), font.render("SCORE", 1, RED), font.render("ACCURACY", 1, RED)]
                     print(hiScores)
                     highScoreTexts = [font.render("NAME", 1, RED), font.render("SCORE", 1, RED), font.render("ACCURACY", 1, RED)]
                     for hs in hiScores:
@@ -427,6 +492,7 @@ def main(scr, level, id):
             screen.blit(title, titleRect)
         else:
             textOverlays = zip([startText, hiScoreText, fxText,
+
                                 musicText, achievementText, quitText, languageText, selectText,
                                 fxOnText if soundFX else fxOffText,
                                 musicOnText if music else musicOffText],
@@ -682,6 +748,87 @@ def main(scr, level, id):
                     for txt, pos in textOverlays:
                         screen.blit(txt, pos)
                     pygame.display.flip()
+            # 코인 구매 구현
+            elif (event.type == pygame.KEYDOWN and event.key == pygame.K_i and aliensLeftThisWave <=0 and betweenWaveCount > 0):
+                inCoin = True
+                ItemDict = {1: continuePos, 2: bombItemPos, 3: shieldPos, 4: doublePos}
+                shield_limit = 0
+                selectItemPos = pygame.Rect(0,0,selectItem.get_width(), selectItem.get_height())
+                selectItemPos.centerx = scr_size * 0.2
+                selectItemPos.centerx = scr_size * 0.8
+                shield_on = False
+                double_on = False
+                while inCoin:
+                    clock.tick(clockTime)
+                    bombCoinText = font.render("Bombs: " + str(bombsHeld), 1, WHITE)
+                    coinShopText = font.render("Coins: "+ str(coinsHeld),1,WHITE)
+                    bombCoinPos = bombCoinText.get_rect(bottomleft=screen.get_rect().bottomleft)
+                    coinShopPos = coinShopText.get_rect(bottomright=screen.get_rect().bottomright)  
+                    screen.blit(
+                        background, (0, 0), area=pygame.Rect(
+                            0, backgroundLoc, scr_size, scr_size))
+                    backgroundLoc -= speed
+                    if backgroundLoc - speed <= speed:
+                        backgroundLoc = scr_size*3
+
+                    for event in pygame.event.get():
+                        if (event.type == pygame.QUIT):
+                            pygame.quit()
+                            sys.exit()
+                        elif (event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN):
+                            if selection == 1:
+                                inCoin = False
+                                break
+                            elif selection == 2:    
+                                if coinsHeld >0:
+                                    bombsHeld +=1
+                                    coinsHeld -=1
+                                else:
+                                    continue
+                            elif selection == 3:
+                                if (coinsHeld>0 and shield_limit==0) :
+                                    ship.shieldUp = True
+                                    shield_on = True
+                                    coinsHeld -=1
+                                    shield_limit +=1
+                                else:
+                                    continue
+                            elif selection == 4 :
+                                if coinsHeld >0 :
+                                    coinsHeld -=1
+                                    doublemissile = True
+                                    double_on = True
+                                else:
+                                    continue
+                        elif (event.type == pygame.KEYDOWN
+                            and event.key == pygame.K_LEFT
+                            and selection > 1):
+                            selection -= 1
+                        elif (event.type == pygame.KEYDOWN
+                            and event.key == pygame.K_RIGHT
+                            and selection < len(ItemDict)):
+                            selection += 1
+                    
+                    selectItemPos = selectItem.get_rect(midtop = ItemDict[selection].midbottom)
+
+                    if not shield_on :
+                        screen.blit(shield_img, shieldRect)
+                    elif shield_on: 
+                        screen.blit(shield_on_img,shieldOnRect)
+                    if not double_on:
+                        screen.blit(double_img, doubleRect)
+                    elif double_on:
+                        screen.blit(double_on_img, doubleOnRect)
+                    
+                    textOverlays = zip([continueText,bombText_Item,shieldText,doubleText,selectItem,bombCoinText,coinShopText],
+                                    [continuePos,bombItemPos,shieldPos,doublePos,selectItemPos,bombCoinPos,coinShopPos])
+                    screen.blit(next, nextRect)
+                    screen.blit(continue_img, continueRect)
+                    screen.blit(bomb_img, bombRect)
+                    
+                    for txt, pos in textOverlays:
+                        screen.blit(txt, pos)
+                    pygame.display.flip()
 
 
      # Collision Detection
@@ -819,21 +966,29 @@ def main(scr, level, id):
             elif betweenDoubleCount == 0:
                 doublemissile = False
                 betweenDoubleCount = betweenDoubleTime
-
+        if Itemdouble:
+            if betweenDoubleCount > 0:
+                betweenDoubleCount -= 1
+            elif betweenDoubleCount == 0:
+                doublemissile = False
+                Itemdouble = False
+                betweenDoubleCount = betweenDoubleTime
      # Detertmine when to move to next wave
-        if aliensLeftThisWave <= 0:
+        if aliensLeftThisWave <= 0:  
             if betweenWaveCount > 0:
                 betweenWaveCount -= 1
                 nextWaveText = font.render(
                     'Wave ' + str(wave + 1) + ' in', 1, WHITE)
                 nextWaveNum = font.render(
                     str((betweenWaveCount // clockTime) + 1), 1, WHITE)
-                text.extend([nextWaveText, nextWaveNum])
+                shopText = font.render('Item Shop : Press I',1,WHITE)
+                text.extend([nextWaveText, nextWaveNum,shopText])
                 nextWavePos = nextWaveText.get_rect(
                     center=screen.get_rect().center)
                 nextWaveNumPos = nextWaveNum.get_rect(
                     midtop=nextWavePos.midbottom)
-                textposition.extend([nextWavePos, nextWaveNumPos])
+                shopPos = shopText.get_rect(midtop=nextWaveNumPos.midbottom)
+                textposition.extend([nextWavePos, nextWaveNumPos,shopPos])
                 if wave % 4 == 0:
                     speedUpText = font.render('SPEED UP!', 1, RED)
                     speedUpPos = speedUpText.get_rect(
@@ -858,7 +1013,27 @@ def main(scr, level, id):
                     Alien.pool.add([Crawly() for _ in range(5)])
                 wave += 1
                 betweenWaveCount = betweenWaveTime
+                if doublemissile:
+                    Itemdouble = True
 
+                selectPos = selectText.get_rect(topright=menuDict[selection].topleft)
+                if showHiScores:
+                    textOverlays = zip(highScoreTexts, highScorePos)
+                elif showAchievement:
+                    textOverlays = zip(achieveTexts, achievePos)
+                else:
+                    textOverlays = zip([restartText, hiScoreText, fxText,
+                                        musicText, achievementText, quitText, selectText,
+                                        fxOnText if soundFX else fxOffText,
+                                        musicOnText if music else musicOffText],
+                                    [restartPos, hiScorePos, fxPos,
+                                        musicPos, achievementPos, quitPos, selectPos,
+                                        fxOnPos if soundFX else fxOffPos,
+                                        musicOnPos if music else musicOffPos])
+                    screen.blit(pause, titleRect)
+                for txt, pos in textOverlays:
+                    screen.blit(txt, pos)
+                pygame.display.flip()
         textOverlays = zip(text, textposition)
 
      # Update and draw all sprites and text
