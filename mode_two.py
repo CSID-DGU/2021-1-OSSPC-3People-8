@@ -38,7 +38,7 @@ class Button:
             elif click[0] and action == 'mode_one':
                 self.lvl_size = -1
 
-            elif click[0] and action == 'mode_two':
+            elif click[0] and action == 'shooting_game':
                 self.lvl_size = -2
         else:
             gameDisplay.blit(img_in,(x,y))
@@ -63,7 +63,8 @@ def main(scr, level, id, language):
     user_size = round(scr_size / level_size)
     id = id
     language = language
-    mode1_lvl_size = 1
+    main_lvl_size = 2
+    mode1_lvl_size = 3
     mode2_lvl_size = 1.6
 
     class size :
@@ -99,14 +100,14 @@ def main(scr, level, id, language):
         selectitemposx = scr_size*0.2
         selectitemposy = scr_size*0.5
         button1pos_1 = round(scr_size*0.08)
-        button2pos_1 = round(scr_size*0.44)
-        button3pos_1 = round(scr_size*0.82)
+        button2pos_1 = round(scr_size*0.37)
+        button3pos_1 = round(scr_size*0.75)
         buttonpos_2 = round(scr_size*0.9)
         buttonpos_3 = round(scr_size*0.08)
         buttonpos_4 = round(scr_size*0.04)
         button1pos_1_ad = round(scr_size*0.07)
-        button2pos_1_ad = round(scr_size*0.43)
-        button3pos_1_ad = round(scr_size*0.81)
+        button2pos_1_ad = round(scr_size*0.36)
+        button3pos_1_ad = round(scr_size*0.74)
         button_ad = round(scr_size*0.896)
         lifex = scr_size * 0.84
         lifey = scr_size * 0.02
@@ -115,7 +116,7 @@ def main(scr, level, id, language):
         return 1 + i%3
     def achievement_posy(i) :
         return 2 + (i+1)//3
-    
+
     def kill_alien(alien, aliensLeftThisWave, kill_count, score) :
         aliensLeftThisWave -= 1
         kill_count += 1
@@ -133,7 +134,7 @@ def main(scr, level, id, language):
         elif alien.pType == 'yellow':
             score += 8
         return aliensLeftThisWave, kill_count, score
-    
+
     def achievement_blit(screen, shoot_record, kill_record) :
         for i in range(len(shoot_imgset)) :
             if int(shoot_record) >= shoot_progress[i] :
@@ -240,7 +241,7 @@ def main(scr, level, id, language):
             return text_kor_set
 
     def set_achievetext(shoot_record, kill_record, achieveTexts) :
-        
+
         for i in range(len(shoot_progress)) :
             if int(shoot_record) < shoot_progress[i] :
                 achieveTexts[3] = font.render(shoot_record + " / " + str(shoot_progress[i]), 1, WHITE)
@@ -255,14 +256,14 @@ def main(scr, level, id, language):
 
     def ingame_text_update(language) :
         if language == "ENG" :
-            return [font.render("Wave: " + str(wave), 1, WHITE), 
+            return [font.render("Wave: " + str(wave), 1, WHITE),
                     font.render("Aliens Left: " + str(aliensLeftThisWave), 1, WHITE),
                     font.render("Score: " + str(score), 1, WHITE),
                     font.render("Bombs: " + str(bombsHeld), 1, WHITE),
                     font.render("Coins: "+ str(coinsHeld), 1, WHITE)]
 
         else :
-            return [font2.render("웨이브: " + str(wave), 1, WHITE), 
+            return [font2.render("웨이브: " + str(wave), 1, WHITE),
                     font2.render("적 남은 수: " + str(aliensLeftThisWave), 1, WHITE),
                     font2.render("점수: " + str(score), 1, WHITE),
                     font2.render("폭탄: " + str(bombsHeld), 1, WHITE),
@@ -368,7 +369,7 @@ def main(scr, level, id, language):
     betweenWaveCount = betweenWaveTime
     betweenDoubleTime = 8 * clockTime
     betweenDoubleCount = betweenDoubleTime
-    coinTime = 8 * clockTime # coin 구현 
+    coinTime = 8 * clockTime # coin 구현
     coinTimeLeft = coinTime # coin 구현
     font = pygame.font.Font(None, size.font_eng)
     font2 = pygame.font.SysFont('hy견고딕', size.font_kor)
@@ -392,7 +393,7 @@ def main(scr, level, id, language):
 
     ########
 
-    title, titleRect = load_image('title.png')
+    title, titleRect = load_image('title_mode2.png')
     title = pygame.transform.scale(title, (round(title.get_width()*size.ratio), round(title.get_height()*size.ratio)))
     titleRect = pygame.Rect(0, 0, title.get_width(), title.get_height())
     pause,pauseRect = load_image('pause.png',WHITE)
@@ -447,7 +448,7 @@ def main(scr, level, id, language):
 
     startText, loginText, hiScoreText, createaccountText, fxText, fxOnText, fxOffText, musicText, achievementText, musicOnText, musicOffText, quitText, restartText, languageText, logoutText, achieveTexts, idText, pwText, gameOverText = set_language(language)
     ### 언어 설정 끝
-    
+
     gameOverPos = gameOverText.get_rect(center=screen.get_rect().center)
 
     startPos = startText.get_rect(midtop=titleRect.inflate(0, size.topendpos).midbottom)
@@ -470,12 +471,12 @@ def main(scr, level, id, language):
         quitPos = quitText.get_rect(topleft=achievementPos.bottomleft)
 
     languagePos = languageText.get_rect(topleft=quitPos.bottomleft)
-    logoutPos = logoutText.get_rect(topleft=languagePos.bottomleft)    
+    logoutPos = logoutText.get_rect(topleft=languagePos.bottomleft)
 
     selectText = font.render('> ', 1, WHITE)
     selectPos = selectText.get_rect(topright=startPos.topleft)
     restartPos = restartText.get_rect(bottomleft=hiScorePos.topleft)
-    
+
     achievePos = [achieveTexts[0].get_rect(
                     topleft=screen.get_rect().inflate(-size.toppos, -size.toppos).topleft),
                   achieveTexts[1].get_rect(
@@ -488,8 +489,8 @@ def main(scr, level, id, language):
     next = pygame.transform.scale(next, (round(next.get_width()*size.coinnextx), round(next.get_height()*size.coinnexty)))
     nextRect = pygame.Rect(0, 0, next.get_width(), next.get_height())
     nextRect.centerx = size.middlepos
-    nextRect.centery = size.cointoppos  
-    
+    nextRect.centery = size.cointoppos
+
     continue_img,continueRect = load_image('continue.png',WHITE)
     continue_img = pygame.transform.scale(continue_img, (round(continue_img.get_width()*size.ratio), round(continue_img.get_height()*size.ratio)))
     continueRect = pygame.Rect(0, 0, continue_img.get_width(), continue_img.get_height())
@@ -550,7 +551,7 @@ def main(scr, level, id, language):
     selectItemPos = pygame.Rect(0,0,selectItem.get_width(), selectItem.get_height())
     selectItemPos.centerx = size.coinxonepos
     selectItemPos.centery = size.coinypose
-    
+
     ###########
 
     # 업적 이미지 생성
@@ -595,12 +596,16 @@ def main(scr, level, id, language):
         menuDict = {1: startPos, 2: loginPos, 3: createaccountPos, 4: hiScorePos, 5: fxPos, 6: musicPos, 7: quitPos, 8: languagePos}
 
     # 버튼 구현
+    mainImg = pygame.image.load("data/main.png")
+    mainImg = pygame.transform.scale(mainImg, (round(mainImg.get_width()*size.ratio), round(mainImg.get_height()*size.ratio)))
     modeImg_one = pygame.image.load("data/mode1.png")
     modeImg_one = pygame.transform.scale(modeImg_one, (round(modeImg_one.get_width()*size.ratio), round(modeImg_one.get_height()*size.ratio)))
     modeImg_two = pygame.image.load("data/mode2.png")
     modeImg_two = pygame.transform.scale(modeImg_two, (round(modeImg_two.get_width()*size.ratio), round(modeImg_two.get_height()*size.ratio)))
     quitImg = pygame.image.load("data/quiticon.png")
     quitImg = pygame.transform.scale(quitImg, (round(quitImg.get_width()*size.ratio), round(quitImg.get_height()*size.ratio)))
+    clickmainImg = pygame.image.load("data/mainclicked.png")
+    clickmainImg = pygame.transform.scale(clickmainImg, (round(clickmainImg.get_width()*size.ratio), round(clickmainImg.get_height()*size.ratio)))
     clickmodeImg_one = pygame.image.load("data/mode1clicked.png")
     clickmodeImg_one = pygame.transform.scale(clickmodeImg_one, (round(clickmodeImg_one.get_width()*size.ratio), round(clickmodeImg_one.get_height()*size.ratio)))
     clickmodeImg_two = pygame.image.load("data/mode2clicked.png")
@@ -655,7 +660,7 @@ def main(scr, level, id, language):
                         score_score = hiScores[i][1]
                         score_accuracy = round(float(hiScores[i][2])*100, 2)
                         hiScores_local.append([score_id, score_score, str(score_accuracy)+"%"])
-                        
+
                     # 중복 아이디 제거
                     hiScores_local = remove_id_overlap(hiScores_local)
                     if language == 'ENG' :
@@ -729,7 +734,7 @@ def main(scr, level, id, language):
             textOverlays = zip(highScoreTexts, highScorePos)
         elif showAchievement:
             screen = achievement_blit(screen, shoot_record, kill_record)
-                
+
             textOverlays = zip(achieveTexts, achievePos)
         elif id == '' :
             textOverlays = zip([startText, loginText, hiScoreText, createaccountText, fxText,
@@ -761,13 +766,13 @@ def main(scr, level, id, language):
 
         #버튼 구현
         modeButton_one = Button(screen,modeImg_one,size.button1pos_1,size.buttonpos_2,size.buttonpos_3,size.buttonpos_4,clickmodeImg_one,size.button1pos_1_ad,size.button_ad,'mode_one') # 버튼 클릭시 실행하고 싶은 파일을 'mode_one'에 써주면 된다.
-        modeButton_two = Button(screen,modeImg_two,size.button2pos_1,size.buttonpos_2,size.buttonpos_3,size.buttonpos_4,clickmodeImg_two,size.button2pos_1_ad,size.button_ad,'mode_two')
+        modeButton_two = Button(screen,mainImg,size.button2pos_1,size.buttonpos_2,size.buttonpos_3,size.buttonpos_4,clickmainImg,size.button2pos_1_ad,size.button_ad,'shooting_game')
         quitButton = Button(screen,quitImg,size.button3pos_1,size.buttonpos_2,size.buttonpos_3,size.buttonpos_4,clickQuitImg,size.button3pos_1_ad,size.button_ad,'quitgame')
 
         if modeButton_one.lvl_size == -1 :
             return scr_size, mode1_lvl_size, id, language
         if modeButton_two.lvl_size == -2 :
-            return scr_size, mode2_lvl_size, id, language
+            return scr_size, main_lvl_size, id, language
 
         pygame.display.flip()
         #여기까지 버튼 구현size.button_ad
@@ -937,7 +942,7 @@ def main(scr, level, id, language):
                     bombCoinText = font.render("Bombs: " + str(bombsHeld), 1, WHITE)
                     coinShopText = font.render("Coins: "+ str(coinsHeld),1,WHITE)
                     bombCoinPos = bombCoinText.get_rect(bottomleft=screen.get_rect().bottomleft)
-                    coinShopPos = coinShopText.get_rect(bottomright=screen.get_rect().bottomright)  
+                    coinShopPos = coinShopText.get_rect(bottomright=screen.get_rect().bottomright)
                     screen, background, backgroundLoc = background_update(screen, background, backgroundLoc)
 
                     for event in pygame.event.get():
@@ -948,7 +953,7 @@ def main(scr, level, id, language):
                             if selection == 1:
                                 inCoin = False
                                 break
-                            elif selection == 2:    
+                            elif selection == 2:
                                 if coinsHeld > 0:
                                     bombsHeld += 1
                                     coinsHeld -= 1
@@ -978,24 +983,24 @@ def main(scr, level, id, language):
                             and event.key == pygame.K_RIGHT
                             and selection < len(ItemDict)):
                             selection += 1
-                    
+
                     selectItemPos = selectItem.get_rect(midtop = ItemDict[selection].midbottom)
 
                     if not shield_on :
                         screen.blit(shield_img, shieldRect)
-                    elif shield_on: 
+                    elif shield_on:
                         screen.blit(shield_on_img,shieldOnRect)
                     if not double_on:
                         screen.blit(double_img, doubleRect)
                     elif double_on:
                         screen.blit(double_on_img, doubleOnRect)
-                    
+
                     textOverlays = zip([continueText,bombText_Item,shieldText,doubleText,selectItem,bombCoinText,coinShopText],
                                     [continuePos,bombItemPos,shieldPos,doublePos,selectItemPos,bombCoinPos,coinShopPos])
                     screen.blit(next, nextRect)
                     screen.blit(continue_img, continueRect)
                     screen.blit(bomb_img, bombRect)
-                    
+
                     for txt, pos in textOverlays:
                         screen.blit(txt, pos)
                     pygame.display.flip()
@@ -1099,7 +1104,7 @@ def main(scr, level, id, language):
                 Itemdouble = False
                 betweenDoubleCount = betweenDoubleTime
      # Detertmine when to move to next wave
-        if aliensLeftThisWave <= 0:  
+        if aliensLeftThisWave <= 0:
             if betweenWaveCount > 0:
                 betweenWaveCount -= 1
                 nextWaveText = font.render(

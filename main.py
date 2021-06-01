@@ -12,7 +12,7 @@ scr_size = user_size * level_size
 id = ''
 language = 'ENG'
 
-mode1_lvl_size = 1
+mode1_lvl_size = 3
 mode2_lvl_size = 1.6
 
 if __name__ == '__main__':
