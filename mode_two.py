@@ -5,7 +5,7 @@ from collections import deque
 import sys
 import grequests
 
-from sprites import (MasterSprite, Ship, Alien, Missile, BombPowerup,CoinPowerup,CoinTwoPowerup,
+from sprites import (MasterSprite, Ship3, Ship4, Alien, Missile, BombPowerup,CoinPowerup,CoinTwoPowerup,
                      ShieldPowerup, DoublemissilePowerup, Explosion, Siney, Spikey, Fasty,
                      Roundy, Crawly)
 from database import Database
@@ -111,6 +111,7 @@ def main(scr, level, id, language):
         button_ad = round(scr_size*0.896)
         lifex = scr_size * 0.84
         lifey = scr_size * 0.02
+        x_background = scr_size*2
 
     def achievement_posx(i) :
         return 1 + i%3
@@ -227,7 +228,27 @@ def main(scr, level, id, language):
     def background_update(screen, background, backgroundLoc) :
         screen.blit(
             background, (0, 0), area=pygame.Rect(
-                0, backgroundLoc, scr_size, scr_size))
+                0, backgroundLoc, size.x_background, scr_size))
+        backgroundLoc -= speed
+        if backgroundLoc - speed <= speed:
+            backgroundLoc = size.backgroundLoc
+        return screen, background, backgroundLoc
+
+    # 인게임에서 배경색으로 플레이어 영역 구분
+    def background_update_half(screen, background, backgroundLoc) :
+        screen.blit(
+            background, (0, 0), area=pygame.Rect(
+                0, backgroundLoc, size.x_background, scr_size))
+        screen.fill((80, 20, 30),(0, 0, screen.get_width()// 2, screen.get_height()))  
+        backgroundLoc -= speed
+        if backgroundLoc - speed <= speed:
+            backgroundLoc = size.backgroundLoc
+        return screen, background, backgroundLoc
+    def background_update_half_two(screen, background, backgroundLoc) :
+        screen.blit(
+            background, (0, 0), area=pygame.Rect(
+                0, backgroundLoc, size.x_background, scr_size))
+        screen.fill((80, 20, 30),(screen.get_width()// 2, 0, screen.get_width()// 2, screen.get_height()))  
         backgroundLoc -= speed
         if backgroundLoc - speed <= speed:
             backgroundLoc = size.backgroundLoc
@@ -259,15 +280,21 @@ def main(scr, level, id, language):
             return [font.render("Wave: " + str(wave), 1, WHITE),
                     font.render("Aliens Left: " + str(aliensLeftThisWave), 1, WHITE),
                     font.render("Score: " + str(score), 1, WHITE),
+                    font.render("Score: " + str(score2), 1, WHITE),
                     font.render("Bombs: " + str(bombsHeld), 1, WHITE),
-                    font.render("Coins: "+ str(coinsHeld), 1, WHITE)]
+                    font.render("Coins: "+ str(coinsHeld), 1, WHITE),
+                    font.render("Bombs: " + str(bombsHeld2), 1, WHITE),
+                    font.render("Coins: "+ str(coinsHeld2), 1, WHITE)]
 
         else :
             return [font2.render("웨이브: " + str(wave), 1, WHITE),
                     font2.render("적 남은 수: " + str(aliensLeftThisWave), 1, WHITE),
                     font2.render("점수: " + str(score), 1, WHITE),
+                    font2.render("점수: " + str(score2), 1, WHITE),
                     font2.render("폭탄: " + str(bombsHeld), 1, WHITE),
-                    font2.render("코인: "+ str(coinsHeld), 1, WHITE)]
+                    font2.render("코인: "+ str(coinsHeld), 1, WHITE),
+                    font2.render("폭탄: " + str(bombsHeld2), 1, WHITE),
+                    font2.render("코인: "+ str(coinsHeld2), 1, WHITE)]
 
     def get_achieve_record(id) :
         data = {"id": id, "shoot": 0, "kill": 0}
@@ -285,24 +312,27 @@ def main(scr, level, id, language):
     direction = {None: (0, 0), pygame.K_UP: (0, -size.speed), pygame.K_DOWN: (0, size.speed),
              pygame.K_LEFT: (-size.speed, 0), pygame.K_RIGHT: (size.speed, 0)}
 
+    direction2 = {None: (0, 0), pygame.K_w: (0, -size.speed), pygame.K_s: (0, size.speed),
+             pygame.K_a: (-size.speed, 0), pygame.K_d: (size.speed, 0)}
+
     # Initialize everything
     pygame.mixer.pre_init(11025, -16, 2, 512)
     pygame.init()
-    screen = pygame.display.set_mode((scr_size, scr_size), pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
+    screen = pygame.display.set_mode((size.x_background, scr_size), pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
     pygame.display.set_caption('Shooting Game')
     pygame.mouse.set_visible(True)
 
 # Create the background which will scroll and loop over a set of different
 # size stars
-    background = pygame.Surface((scr_size, size.background))
+    background = pygame.Surface((size.x_background, size.background))
     background = background.convert()
     background.fill(BLACK)
-
+    
     backgroundLoc = size.backgroundLoc
     finalStars = deque()
     for y in range(0, size.backgroundLoc, size.star_seq):
         starsize = random.randint(size.star_s, size.star_l)
-        x = random.randint(0, scr_size - starsize)
+        x = random.randint(0, size.x_background - starsize)
         if y <= scr_size:
             finalStars.appendleft((x, y + size.backgroundLoc, starsize))
         pygame.draw.rect(
@@ -322,13 +352,14 @@ def main(scr, level, id, language):
     alienPeriod = 60 / speed
     clockTime = 60  # maximum FPS
     clock = pygame.time.Clock()
-    ship = Ship()
+    ship = Ship3()
+    ship2 = Ship4()
     initialAlienTypes = (Siney, Spikey)
     powerupTypes = (BombPowerup, ShieldPowerup, DoublemissilePowerup)
     coinTypes = (CoinPowerup,CoinTwoPowerup)
     # Sprite groups
     alldrawings = pygame.sprite.Group()
-    allsprites = pygame.sprite.RenderPlain((ship,))
+    allsprites = pygame.sprite.RenderPlain((ship, ship2))
     MasterSprite.allsprites = allsprites
     Alien.pool = pygame.sprite.Group(
         [alien() for alien in initialAlienTypes for _ in range(5)])
@@ -362,6 +393,11 @@ def main(scr, level, id, language):
     doublemissile = False #doublemissile아이템이 지속되는 동안(5초) 미사일이 두배로 발사됨
     Itemdouble = False
     score = 0
+    bombsHeld2 = 3
+    coinsHeld2 = 0
+    doublemissile2 = False
+    Itemdouble2 = False
+    score2 = 0
     missilesFired = 0
     powerupTime = 10 * clockTime
     powerupTimeLeft = powerupTime
@@ -374,7 +410,7 @@ def main(scr, level, id, language):
     font = pygame.font.Font(None, size.font_eng)
     font2 = pygame.font.SysFont('hy견고딕', size.font_kor)
     inMenu = True
-
+    half_tf = True
     hiScores = Database.getScores()
     highScoreTexts = [font.render("NAME", 1, RED),
                       font.render("SCORE", 1, RED),
@@ -619,7 +655,7 @@ def main(scr, level, id, language):
     # 메인 메뉴
     while inMenu:
         scr_x , scr_y = pygame.display.get_surface().get_size()
-        if scr_size != scr_x or scr_size != scr_y :
+        if size.x_background != scr_x or scr_size != scr_y :
             return min(scr_x, scr_y), level_size, id, language    # 메뉴화면에서만 창 사이즈 크기 확인하고, 변경되면 main 재시작
         clock.tick(clockTime)
 
@@ -640,18 +676,21 @@ def main(scr, level, id, language):
                 elif showAchievement :
                     showAchievement = False
                 elif selection == 1:
-                    screen = pygame.display.set_mode((scr_size, scr_size))  # 리사이즈 불가능하도록 변경
+                    screen = pygame.display.set_mode((size.x_background, scr_size))  # 리사이즈 불가능하도록 변경
                     inMenu = False
                     shoot_count , kill_count = 0, 0
                     ship.initializeKeys()
+                    ship2.initializeKeys()
                 elif selection == 2 and id == '':
                     showLogin = True
                     inMenu = False
                     ship.alive = False
+                    ship2.alive = False
                 elif selection == 3 and id == '':
                     showCreateaccount = True
                     inMenu = False
                     ship.alive = False
+                    ship2.alive = False
                 elif selection == 4 and id == '' :
                     hiScores = Database.getScores()
                     hiScores_local = []
@@ -777,7 +816,7 @@ def main(scr, level, id, language):
         pygame.display.flip()
         #여기까지 버튼 구현size.button_ad
 
-    while ship.alive:
+    while ship.alive and ship2.alive:
         clock.tick(clockTime)
 
         if aliensLeftThisWave >= aliennum:
@@ -827,6 +866,40 @@ def main(scr, level, id, language):
                     newBomb.add(bombs, alldrawings)
                     if soundFX:
                         bomb_sound.play()
+
+            elif (event.type == pygame.KEYDOWN
+                  and event.key in direction2.keys()):
+                ship2.horiz += direction2[event.key][0] * speed
+                ship2.vert += direction2[event.key][1] * speed
+            elif (event.type == pygame.KEYUP
+                  and event.key in direction2.keys()):
+                ship2.horiz -= direction2[event.key][0] * speed
+                ship2.vert -= direction2[event.key][1] * speed
+            elif (event.type == pygame.KEYDOWN
+                  and event.key == pygame.K_v):
+                shoot_count += 1
+                # doublemissile 구현
+                if doublemissile:
+                    Missile.position(ship2.rect.topleft)
+                    Missile.position(ship2.rect.topright)
+                    missilesFired += 2
+                else:
+                    Missile.position(ship2.rect.midtop)
+                    missilesFired += 1
+                if soundFX:
+                    missile_sound.play()
+            elif (event.type == pygame.KEYDOWN
+                  and event.key == pygame.K_q):
+                if bombsHeld2 > 0:
+                    bombsHeld2 -= 1
+                    newBomb = ship2.bomb()
+                    newBomb.add(bombs, alldrawings)
+                    if soundFX:
+                        bomb_sound.play()
+            elif (event.type == pygame.KEYDOWN and event.key == pygame.K_l):
+                ship,ship2 = ship2,ship
+                half_tf = False
+                
             # pause 구현부분
             elif (event.type == pygame.KEYDOWN and event.key == pygame.K_p):
                 inPmenu = True
@@ -927,83 +1000,84 @@ def main(scr, level, id, language):
                         screen.blit(txt, pos)
                     pygame.display.flip()
             # 코인 구매 구현
-            elif (event.type == pygame.KEYDOWN and event.key == pygame.K_i and aliensLeftThisWave <=0 and betweenWaveCount > 0):
-                inCoin = True
-                ItemDict = {1: continuePos, 2: bombItemPos, 3: shieldPos, 4: doublePos}
-                shield_limit = 0
-                double_limit = 0
-                selectItemPos = pygame.Rect(0,0,selectItem.get_width(), selectItem.get_height())
-                selectItemPos.centerx = size.selectitemposx
-                selectItemPos.centery = size.selectitemposy
-                shield_on = False
-                double_on = False
-                while inCoin:
-                    clock.tick(clockTime)
-                    bombCoinText = font.render("Bombs: " + str(bombsHeld), 1, WHITE)
-                    coinShopText = font.render("Coins: "+ str(coinsHeld),1,WHITE)
-                    bombCoinPos = bombCoinText.get_rect(bottomleft=screen.get_rect().bottomleft)
-                    coinShopPos = coinShopText.get_rect(bottomright=screen.get_rect().bottomright)
-                    screen, background, backgroundLoc = background_update(screen, background, backgroundLoc)
+            # elif (event.type == pygame.KEYDOWN and event.key == pygame.K_i and aliensLeftThisWave <=0 and betweenWaveCount > 0):
+            #     inCoin = True
+            #     ItemDict = {1: continuePos, 2: bombItemPos, 3: shieldPos, 4: doublePos}
+            #     shield_limit = 0
+            #     double_limit = 0
+            #     selectItemPos = pygame.Rect(0,0,selectItem.get_width(), selectItem.get_height())
+            #     selectItemPos.centerx = size.selectitemposx
+            #     selectItemPos.centery = size.selectitemposy
+            #     shield_on = False
+            #     double_on = False
+            #     while inCoin:
+            #         clock.tick(clockTime)
+            #         bombCoinText = font.render("Bombs: " + str(bombsHeld), 1, WHITE)
+            #         coinShopText = font.render("Coins: "+ str(coinsHeld),1,WHITE)
+            #         bombCoinPos = bombCoinText.get_rect(bottomleft=screen.get_rect().bottomleft)
+            #         coinShopPos = coinShopText.get_rect(bottomright=screen.get_rect().bottomright)
 
-                    for event in pygame.event.get():
-                        if (event.type == pygame.QUIT):
-                            pygame.quit()
-                            sys.exit()
-                        elif (event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN):
-                            if selection == 1:
-                                inCoin = False
-                                break
-                            elif selection == 2:
-                                if coinsHeld > 0:
-                                    bombsHeld += 1
-                                    coinsHeld -= 1
-                                else:
-                                    continue
-                            elif selection == 3:
-                                if (coinsHeld > 0 and shield_limit == 0) :
-                                    ship.shieldUp = True
-                                    shield_on = True
-                                    coinsHeld -= 1
-                                    shield_limit += 1
-                                else:
-                                    continue
-                            elif selection == 4 :
-                                if (coinsHeld > 0 and double_limit == 0) :
-                                    coinsHeld -= 1
-                                    doublemissile = True
-                                    double_on = True
-                                    double_limit += 1
-                                else:
-                                    continue
-                        elif (event.type == pygame.KEYDOWN
-                            and event.key == pygame.K_LEFT
-                            and selection > 1):
-                            selection -= 1
-                        elif (event.type == pygame.KEYDOWN
-                            and event.key == pygame.K_RIGHT
-                            and selection < len(ItemDict)):
-                            selection += 1
+            #         screen, background, backgroundLoc = background_update(screen, background, backgroundLoc)
 
-                    selectItemPos = selectItem.get_rect(midtop = ItemDict[selection].midbottom)
+            #         for event in pygame.event.get():
+            #             if (event.type == pygame.QUIT):
+            #                 pygame.quit()
+            #                 sys.exit()
+            #             elif (event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN):
+            #                 if selection == 1:
+            #                     inCoin = False
+            #                     break
+            #                 elif selection == 2:
+            #                     if coinsHeld > 0:
+            #                         bombsHeld += 1
+            #                         coinsHeld -= 1
+            #                     else:
+            #                         continue
+            #                 elif selection == 3:
+            #                     if (coinsHeld > 0 and shield_limit == 0) :
+            #                         ship.shieldUp = True
+            #                         shield_on = True
+            #                         coinsHeld -= 1
+            #                         shield_limit += 1
+            #                     else:
+            #                         continue
+            #                 elif selection == 4 :
+            #                     if (coinsHeld > 0 and double_limit == 0) :
+            #                         coinsHeld -= 1
+            #                         doublemissile = True
+            #                         double_on = True
+            #                         double_limit += 1
+            #                     else:
+            #                         continue
+            #             elif (event.type == pygame.KEYDOWN
+            #                 and event.key == pygame.K_LEFT
+            #                 and selection > 1):
+            #                 selection -= 1
+            #             elif (event.type == pygame.KEYDOWN
+            #                 and event.key == pygame.K_RIGHT
+            #                 and selection < len(ItemDict)):
+            #                 selection += 1
 
-                    if not shield_on :
-                        screen.blit(shield_img, shieldRect)
-                    elif shield_on:
-                        screen.blit(shield_on_img,shieldOnRect)
-                    if not double_on:
-                        screen.blit(double_img, doubleRect)
-                    elif double_on:
-                        screen.blit(double_on_img, doubleOnRect)
+            #         selectItemPos = selectItem.get_rect(midtop = ItemDict[selection].midbottom)
 
-                    textOverlays = zip([continueText,bombText_Item,shieldText,doubleText,selectItem,bombCoinText,coinShopText],
-                                    [continuePos,bombItemPos,shieldPos,doublePos,selectItemPos,bombCoinPos,coinShopPos])
-                    screen.blit(next, nextRect)
-                    screen.blit(continue_img, continueRect)
-                    screen.blit(bomb_img, bombRect)
+            #         if not shield_on :
+            #             screen.blit(shield_img, shieldRect)
+            #         elif shield_on:
+            #             screen.blit(shield_on_img,shieldOnRect)
+            #         if not double_on:
+            #             screen.blit(double_img, doubleRect)
+            #         elif double_on:
+            #             screen.blit(double_on_img, doubleOnRect)
 
-                    for txt, pos in textOverlays:
-                        screen.blit(txt, pos)
-                    pygame.display.flip()
+            #         textOverlays = zip([continueText,bombText_Item,shieldText,doubleText,selectItem,bombCoinText,coinShopText],
+            #                         [continuePos,bombItemPos,shieldPos,doublePos,selectItemPos,bombCoinPos,coinShopPos])
+            #         screen.blit(next, nextRect)
+            #         screen.blit(continue_img, continueRect)
+            #         screen.blit(bomb_img, bombRect)
+
+            #         for txt, pos in textOverlays:
+            #             screen.blit(txt, pos)
+            #         pygame.display.flip()
 
 
      # Collision Detection
@@ -1014,7 +1088,10 @@ def main(scr, level, id, language):
                         bomb, alien) and alien in Alien.active:
                     alien.table()
                     Explosion.position(alien.rect.center)
-                    aliensLeftThisWave, kill_count, score = kill_alien(alien, aliensLeftThisWave, kill_count, score)
+                    if alien.rect.center[0] < scr_size :
+                        aliensLeftThisWave, kill_count, score = kill_alien(alien, aliensLeftThisWave, kill_count, score)
+                    else :
+                        aliensLeftThisWave, kill_count, score2 = kill_alien(alien, aliensLeftThisWave, kill_count, score2)
                     if soundFX:
                         alien_explode_sound.play()
             for missile in Missile.active:
@@ -1023,7 +1100,10 @@ def main(scr, level, id, language):
                     alien.table()
                     missile.table()
                     Explosion.position(alien.rect.center)
-                    aliensLeftThisWave, kill_count, score = kill_alien(alien, aliensLeftThisWave, kill_count, score)
+                    if alien.rect.center[0] < scr_size :
+                        aliensLeftThisWave, kill_count, score = kill_alien(alien, aliensLeftThisWave, kill_count, score)
+                    else :
+                        aliensLeftThisWave, kill_count, score2 = kill_alien(alien, aliensLeftThisWave, kill_count, score2)
                     if soundFX:
                         alien_explode_sound.play()
             if pygame.sprite.collide_rect(alien, ship):
@@ -1035,7 +1115,7 @@ def main(scr, level, id, language):
                     ship.shieldUp = False
                 else:
                     # life 구현 부분
-                    if ship.lives ==1:
+                    if ship.lives == 1:
                         ship.alive = False
                         ship.remove(allsprites)
                         Explosion.position(ship.rect.center)
@@ -1046,6 +1126,27 @@ def main(scr, level, id, language):
                         Explosion.position(alien.rect.center)
                         aliensLeftThisWave -= 1
                         ship.lives -=1
+
+            if pygame.sprite.collide_rect(alien, ship2):
+                if ship2.shieldUp:
+                    alien.table()
+                    Explosion.position(alien.rect.center)
+                    aliensLeftThisWave, kill_count, score2 = kill_alien(alien, aliensLeftThisWave, kill_count, score2)
+                    missilesFired += 1
+                    ship2.shieldUp = False
+                else:
+                    # life 구현 부분
+                    if ship2.lives == 1:
+                        ship2.alive = False
+                        ship2.remove(allsprites)
+                        Explosion.position(ship2.rect.center)
+                        if soundFX:
+                            ship_explode_sound.play()
+                    else:
+                        alien.table()
+                        Explosion.position(alien.rect.center)
+                        aliensLeftThisWave -= 1
+                        ship2.lives -=1
 
         # PowerUps
         for powerup in powerups:
@@ -1070,6 +1171,28 @@ def main(scr, level, id, language):
             elif coin.rect.top > coin.area.bottom:
                 coin.kill()
 
+        for powerup in powerups:
+            if pygame.sprite.collide_circle(powerup, ship2):
+                if powerup.pType == 'bomb':
+                    bombsHeld2 += 1
+                elif powerup.pType == 'shield':
+                    ship2.shieldUp = True
+                elif powerup.pType == 'doublemissile':
+                    doublemissile2 = True
+                powerup.kill()
+            elif powerup.rect.top > powerup.area.bottom:
+                powerup.kill()
+        # coin Drop부분
+        for coin in coingroup:
+            if pygame.sprite.collide_circle(coin, ship2):
+                if coin.pType == 'coin':
+                    coinsHeld2 +=1
+                elif coin.pType =='coin2':
+                    coinsHeld2 +=2
+                coin.kill()
+            elif coin.rect.top > coin.area.bottom:
+                coin.kill()
+
      # Update Aliens
         if curTime <= 0 and aliensLeftThisWave > 0:
             Alien.position()
@@ -1078,16 +1201,19 @@ def main(scr, level, id, language):
             curTime -= 1
 
      # Update text overlays
-        waveText, leftText, scoreText, bombText, coinText = ingame_text_update(language)
+        waveText, leftText, scoreText, scoreText2, bombText, coinText, bombText2, coinText2 = ingame_text_update(language)
 
-        wavePos = waveText.get_rect(topleft=screen.get_rect().topleft)
-        leftPos = leftText.get_rect(midtop=screen.get_rect().midtop)
-        scorePos = scoreText.get_rect(topright=screen.get_rect().topright)
+        wavePos = waveText.get_rect(topright=screen.get_rect().midtop)
+        leftPos = leftText.get_rect(topleft=screen.get_rect().midtop)
+        scorePos = scoreText.get_rect(topleft=screen.get_rect().topleft)
         bombPos = bombText.get_rect(bottomleft=screen.get_rect().bottomleft)
-        coinPos = coinText.get_rect(bottomright=screen.get_rect().bottomright)
+        coinPos = coinText.get_rect(bottomright=screen.get_rect().midbottom)
+        scorePos2 = scoreText2.get_rect(topright=screen.get_rect().topright)
+        bombPos2 = bombText2.get_rect(bottomleft=screen.get_rect().midbottom)
+        coinPos2 = coinText2.get_rect(bottomright=screen.get_rect().bottomright)
 
-        text = [waveText, leftText, scoreText, bombText,coinText]
-        textposition = [wavePos, leftPos, scorePos, bombPos,coinPos]
+        text = [waveText, leftText, scoreText, bombText,coinText, scoreText2, bombText2, coinText2]
+        textposition = [wavePos, leftPos, scorePos, bombPos,coinPos, scorePos2, bombPos2,coinPos2]
 
         #5초동안 doublemissile상태를 유지
         if doublemissile:
@@ -1130,6 +1256,7 @@ def main(scr, level, id, language):
                     speed += speedup
                     MasterSprite.speed = speed
                     ship.initializeKeys()
+                    ship2.initializeKeys()
                     aliensThisWave = setaliennum
                     aliensLeftThisWave = Alien.numOffScreen = aliensThisWave
                 else:
@@ -1170,8 +1297,11 @@ def main(scr, level, id, language):
                 pygame.display.flip()
         textOverlays = zip(text, textposition)
 
-     # Update and draw all sprites and text
-        screen, background, backgroundLoc = background_update(screen, background, backgroundLoc)
+     # Update and draw all sprites and text 
+        if half_tf:
+            screen, background, backgroundLoc = background_update_half(screen, background, backgroundLoc)
+        else:
+            screen, background, backgroundLoc = background_update_half_two(screen, background, backgroundLoc)
         allsprites.update()
         allsprites.draw(screen)
         alldrawings.update()
@@ -1180,6 +1310,7 @@ def main(scr, level, id, language):
             screen.blit(txt, pos)
         # life 구현
         ship.draw_lives(screen, size.lifex, size.lifey)
+        ship2.draw_lives(screen, size.lifex, size.lifey)
         pygame.display.flip()
 
     accuracy = round(score / missilesFired, 4) if missilesFired > 0 else 0.0
@@ -1239,7 +1370,7 @@ def main(scr, level, id, language):
                     elif (event.type == pygame.KEYDOWN
                         and event.key == pygame.K_RETURN
                         and len(password) > 0):
-                        is_input_id, inMenu, ship.alive, showLogin = True, True, True, False
+                        is_input_id, inMenu, ship.alive, ship.alive, showLogin = True, True, True, True, False
                         data = {"id": id, "password": password}
                         req = grequests.post(url + '/login/', json=data)
                         res = grequests.map([req])
@@ -1300,7 +1431,7 @@ def main(scr, level, id, language):
                     elif (event.type == pygame.KEYDOWN
                         and event.key == pygame.K_RETURN
                         and len(password) > 0):
-                        is_input_id, inMenu, ship.alive, showCreateaccount = True, True, True, False
+                        is_input_id, inMenu, ship.alive, ship2.alive, showCreateaccount = True, True, True, True, False
                         data = {"id": id, "password": password}
                         req = grequests.post(url + "/create_account/", json=data)
                         res = grequests.map([req])
