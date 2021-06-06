@@ -14,6 +14,8 @@ spikey_period = range(10, 41)
 fasty_movefunc = 3
 
 user_size, level_size, scr_size = 200, 2, 400
+main_lvl_size = 2
+x_background = 2*scr_size #협동 모드와 pvp모드에서는 가로 사이즈를 두배로
 
 class size :
     update = scr_size*0.008
@@ -26,6 +28,9 @@ class size :
 
     ratio_user = user_size*0.002
     explosion_linger = user_size*0.006
+
+    x_background = scr_size*2
+    right = x_background*0.6
 
 def get_size(user, level) :
     global user_size, level_size, scr_size
@@ -183,6 +188,11 @@ class CoinTwoPowerup(Powerup):
         super().__init__('coin2')
         self.pType = 'coin2'
 
+class TeamshieldPowerup(Powerup):
+    def __init__(self):
+        super().__init__('teamshield')
+        self.pType = 'teamshield'
+
 class Ship(MasterSprite):
     def __init__(self):
         super().__init__()
@@ -257,12 +267,12 @@ class Ship2(MasterSprite):
         self.image = pygame.transform.scale(self.image, (round(self.image.get_width()*size.ratio_user), round(self.image.get_height()*size.ratio_user)))
         self.rect = pygame.Rect(0, 0, self.image.get_width(), self.image.get_height())
         self.original = self.image
-        self.shield, self.rect = load_image('ship_shield.png', -1)
+        self.shield, self.rect = load_image('ship2_shield.png', -1)
         self.shield = pygame.transform.scale(self.shield, (round(self.shield.get_width()*size.ratio_user), round(self.shield.get_height()*size.ratio_user)))
         self.rect = pygame.Rect(0, 0, self.shield.get_width(), self.shield.get_height())
         self.screen = pygame.display.get_surface()
         self.area = self.screen.get_rect()
-        self.rect.midbottom = (size.middle, scr_size)
+        self.rect.midbottom = (size.right, scr_size)
         self.radius = max(self.rect.width, self.rect.height)
         self.alive = True
         self.shieldUp = False
@@ -474,14 +484,14 @@ class Alien(MasterSprite):
 
     def update(self):
         horiz, vert = self.moveFunc()
-        if level_size != 1.6 :
-            if horiz + self.initialRect.x > scr_size:
-                horiz -= scr_size + self.rect.width
+        if level_size != main_lvl_size:
+            if horiz + self.initialRect.x > x_background:
+                horiz -= x_background + self.rect.width
             elif horiz + self.initialRect.x < 0 - self.rect.width:
                 horiz += scr_size + self.rect.width
         else :
-            if horiz + self.initialRect.x > 2*scr_size:
-                horiz -= 2*scr_size + self.rect.width
+            if horiz + self.initialRect.x > scr_size:
+                horiz -= scr_size + self.rect.width
             elif horiz + self.initialRect.x < 0 - self.rect.width:
                 horiz += scr_size + self.rect.width
         self.rect = self.initialRect.move((horiz, self.loc + vert))

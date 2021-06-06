@@ -6,7 +6,7 @@ import sys
 import grequests
 
 from sprites import (MasterSprite, Ship, Ship2, Alien, Missile, BombPowerup,CoinPowerup,CoinTwoPowerup,
-                     ShieldPowerup, DoublemissilePowerup, Explosion, Siney, Spikey, Fasty,
+                     DoublemissilePowerup, TeamshieldPowerup, Explosion, Siney, Spikey, Fasty,
                      Roundy, Crawly)
 from database import Database
 from load import load_image, load_sound, load_music
@@ -68,6 +68,7 @@ def main(scr, level, id, language):
     mode2_lvl_size = 1.6
 
     class size :
+        x_background = scr_size*2
         speed = scr_size*0.004
         background = scr_size*4
         backgroundLoc = scr_size*3
@@ -82,13 +83,13 @@ def main(scr, level, id, language):
         ratio = scr_size*0.002
         middletoppos = scr_size*0.35
         topendpos = scr_size*0.15
-        middlepos = scr_size*0.5
+        middlepos = x_background*0.5
         cointoppos = scr_size*0.25
         coinpos = scr_size*0.7
-        coinxonepos = scr_size*0.2
-        coinxtwopos = scr_size*0.4
-        coinxthreepos = scr_size*0.6
-        coinxfourpos = scr_size*0.8
+        coinxonepos = x_background*0.2
+        coinxtwopos = x_background*0.4
+        coinxthreepos = x_background*0.6
+        coinxfourpos = x_background*0.8
         coinypose = scr_size*0.8
         achievement = scr_size/3000
         achievementpos = scr_size*0.25
@@ -99,18 +100,18 @@ def main(scr, level, id, language):
         hi_achievementy_seq = scr_size*0.043
         selectitemposx = scr_size*0.2
         selectitemposy = scr_size*0.5
-        button1pos_1 = round(scr_size*0.03)
-        button2pos_1 = round(scr_size*0.44)
-        button3pos_1 = round(scr_size*0.75)
+        button1pos_1 = round(x_background*0.03)
+        button2pos_1 = round(x_background*0.46)
+        button3pos_1 = round(x_background*0.86)
         buttonpos_2 = round(scr_size*0.9)
         buttonpos_3 = round(scr_size*0.08)
         buttonpos_4 = round(scr_size*0.04)
-        button1pos_1_ad = round(scr_size*0.02)
-        button2pos_1_ad = round(scr_size*0.43)
-        button3pos_1_ad = round(scr_size*0.74)
+        button1pos_1_ad = round(x_background*0.02)
+        button2pos_1_ad = round(x_background*0.45)
+        button3pos_1_ad = round(x_background*0.85)
         button_ad = round(scr_size*0.896)
-        lifex = scr_size * 0.84
-        lifey = scr_size * 0.02
+        lifex = x_background * 0.92
+        lifey = x_background * 0.02
 
     def achievement_posx(i) :
         return 1 + i%3
@@ -227,7 +228,7 @@ def main(scr, level, id, language):
     def background_update(screen, background, backgroundLoc) :
         screen.blit(
             background, (0, 0), area=pygame.Rect(
-                0, backgroundLoc, scr_size, scr_size))
+                0, backgroundLoc, size.x_background, scr_size))
         backgroundLoc -= speed
         if backgroundLoc - speed <= speed:
             backgroundLoc = size.backgroundLoc
@@ -291,13 +292,13 @@ def main(scr, level, id, language):
     # Initialize everything
     pygame.mixer.pre_init(11025, -16, 2, 512)
     pygame.init()
-    screen = pygame.display.set_mode((scr_size, scr_size), pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
+    screen = pygame.display.set_mode((size.x_background, scr_size), pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
     pygame.display.set_caption('Shooting Game')
     pygame.mouse.set_visible(True)
 
 # Create the background which will scroll and loop over a set of different
 # size stars
-    background = pygame.Surface((scr_size, size.background))
+    background = pygame.Surface((size.x_background, size.background))
     background = background.convert()
     background.fill(BLACK)
 
@@ -305,7 +306,7 @@ def main(scr, level, id, language):
     finalStars = deque()
     for y in range(0, size.backgroundLoc, size.star_seq):
         starsize = random.randint(size.star_s, size.star_l)
-        x = random.randint(0, scr_size - starsize)
+        x = random.randint(0, size.x_background - starsize)
         if y <= scr_size:
             finalStars.appendleft((x, y + size.backgroundLoc, starsize))
         pygame.draw.rect(
@@ -328,7 +329,7 @@ def main(scr, level, id, language):
     ship = Ship()
     ship2 = Ship2()
     initialAlienTypes = (Siney, Spikey)
-    powerupTypes = (BombPowerup, ShieldPowerup, DoublemissilePowerup)
+    powerupTypes = (BombPowerup, TeamshieldPowerup, DoublemissilePowerup)
     coinTypes = (CoinPowerup,CoinTwoPowerup)
     # Sprite groups
     alldrawings = pygame.sprite.Group()
@@ -507,7 +508,7 @@ def main(scr, level, id, language):
     bombRect.centerx = size.coinxtwopos
     bombRect.centery = size.coinpos
 
-    shield_img,shieldRect = load_image('shield_click.png')
+    shield_img,shieldRect = load_image('teamshield_click.png')
     shield_img = pygame.transform.scale(shield_img, (round(shield_img.get_width()*size.ratio), round(shield_img.get_height()*size.ratio)))
     shieldRect = pygame.Rect(0, 0, shield_img.get_width(), shield_img.get_height())
     shieldRect.centerx = size.coinxthreepos
@@ -623,7 +624,7 @@ def main(scr, level, id, language):
     # 메인 메뉴
     while inMenu:
         scr_x , scr_y = pygame.display.get_surface().get_size()
-        if scr_size != scr_x or scr_size != scr_y :
+        if size.x_background != scr_x or scr_size != scr_y :
             return min(scr_x, scr_y), level_size, id, language    # 메뉴화면에서만 창 사이즈 크기 확인하고, 변경되면 main 재시작
         clock.tick(clockTime)
 
@@ -644,7 +645,7 @@ def main(scr, level, id, language):
                 elif showAchievement :
                     showAchievement = False
                 elif selection == 1:
-                    screen = pygame.display.set_mode((scr_size, scr_size))  # 리사이즈 불가능하도록 변경
+                    screen = pygame.display.set_mode((size.x_background, scr_size))  # 리사이즈 불가능하도록 변경
                     inMenu = False
                     shoot_count , kill_count = 0, 0
                     ship.initializeKeys()
@@ -1000,6 +1001,7 @@ def main(scr, level, id, language):
                             elif selection == 3:
                                 if (coinsHeld > 0 and shield_limit == 0) :
                                     ship.shieldUp = True
+                                    ship2.shieldUp = True
                                     shield_on = True
                                     coinsHeld -= 1
                                     shield_limit += 1
@@ -1111,10 +1113,13 @@ def main(scr, level, id, language):
             if pygame.sprite.collide_circle(powerup, ship):
                 if powerup.pType == 'bomb':
                     bombsHeld += 1
-                elif powerup.pType == 'shield':
-                    ship.shieldUp = True
+                # elif powerup.pType == 'shield':
+                #     ship.shieldUp = True
                 elif powerup.pType == 'doublemissile':
                     doublemissile = True
+                elif powerup.pType == 'teamshield':
+                    ship.shieldUp = True
+                    ship2.shieldUp = True
                 powerup.kill()
             elif powerup.rect.top > powerup.area.bottom:
                 powerup.kill()
@@ -1123,10 +1128,13 @@ def main(scr, level, id, language):
             if pygame.sprite.collide_circle(powerup, ship2):
                 if powerup.pType == 'bomb':
                     bombsHeld += 1
-                elif powerup.pType == 'shield':
-                    ship2.shieldUp = True
+                # elif powerup.pType == 'shield':
+                #     ship2.shieldUp = True
                 elif powerup.pType == 'doublemissile':
                     doublemissile = True
+                elif powerup.pType == 'teamshield':
+                    ship.shieldUp = True
+                    ship2.shieldUp = True
                 powerup.kill()
             elif powerup.rect.top > powerup.area.bottom:
                 powerup.kill()
