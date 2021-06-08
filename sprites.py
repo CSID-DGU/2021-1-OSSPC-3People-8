@@ -283,7 +283,7 @@ class Ship2(MasterSprite):
         self.shieldUp = False
         self.vert = 0
         self.horiz = 0
-        self.lives = 2
+        self.lives = 3
 
     def initializeKeys(self):
         self.vert = 0
@@ -308,7 +308,7 @@ class Ship2(MasterSprite):
 
         if self.shieldUp and self.image != self.shield:
             self.image = self.shield
-            
+
 
         if not self.shieldUp and self.image != self.original:
             self.image = self.original
@@ -343,7 +343,7 @@ class Ship3(MasterSprite):
         self.shieldUp = False
         self.vert = 0
         self.horiz = 0
-        self.lives = 2
+        self.lives = 3
 
     def initializeKeys(self):
         self.vert = 0
@@ -401,7 +401,7 @@ class Ship4(MasterSprite):
         self.shieldUp = False
         self.vert = 0
         self.horiz = 0
-        self.lives = 2
+        self.lives = 3
 
     def initializeKeys(self):
         self.vert = 0
@@ -426,7 +426,7 @@ class Ship4(MasterSprite):
 
         if self.shieldUp and self.image != self.shield:
             self.image = self.shield
-            
+
 
         if not self.shieldUp and self.image != self.original:
             self.image = self.original
@@ -450,7 +450,7 @@ class Ship5(MasterSprite):
         self.image = pygame.transform.scale(self.image, (round(self.image.get_width()*size.ratio_user), round(self.image.get_height()*size.ratio_user)))
         self.rect = pygame.Rect(0, 0, self.image.get_width(), self.image.get_height())
         self.original = self.image
-        self.shield, self.rect = load_image('ship_shield.png', -1)
+        self.shield, self.rect = load_image('ship2_shield.png', -1)
         self.shield = pygame.transform.scale(self.shield, (round(self.shield.get_width()*size.ratio_user), round(self.shield.get_height()*size.ratio_user)))
         self.rect = pygame.Rect(0, 0, self.shield.get_width(), self.shield.get_height())
         self.screen = pygame.display.get_surface()
@@ -461,7 +461,7 @@ class Ship5(MasterSprite):
         self.shieldUp = False
         self.vert = 0
         self.horiz = 0
-        self.lives = 2
+        self.lives = 3
 
     def initializeKeys(self):
         self.vert = 0

@@ -107,7 +107,7 @@ def main(scr, level, id, language):
         button3pos_1_ad = round(x_background*0.85)
         button_ad = round(scr_size*0.896)
         lifex = x_background * 0.92
-        lifey = x_background * 0.02
+        lifey = x_background * 0.01
 
     def achievement_posx(i) :
         return 1 + i%3
@@ -1296,7 +1296,7 @@ def main(scr, level, id, language):
                     sys.exit()
 
                 elif login_status == 3 :
-                    if (event.type == pygame.KEYDOWN 
+                    if (event.type == pygame.KEYDOWN
                         and event.key in Keyboard.keys.keys()
                         and len(idBuffer) < id_len) :
                         idBuffer.append(Keyboard.keys[event.key])
@@ -1470,7 +1470,7 @@ def main(scr, level, id, language):
                     Database.setScore(hiScores, (name, score, accuracy))
                     return scr_size, level_size, id, language
 
-        else : 
+        else :
             data = {"id": id[0] + ',' + id[1], "score": score, "accuracy": accuracy}
             req = grequests.post(url + '/save_record_coop/', json=data)
             res = grequests.map([req])
@@ -1483,7 +1483,7 @@ def main(scr, level, id, language):
             print(res[0].content)
             return scr_size, level_size, id, language
 
-        if isHiScore: 
+        if isHiScore:
             hiScorePos = hiScoreText.get_rect(midbottom=screen.get_rect().center)
             scoreText = font.render(str(score), 1, WHITE)
             scorePos = scoreText.get_rect(midtop=hiScorePos.midbottom)
