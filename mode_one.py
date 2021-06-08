@@ -265,7 +265,7 @@ def main(scr, level, id, language):
 
         else :
             return [font2.render("웨이브: " + str(wave), 1, WHITE),
-                    font2.render("적 남은 수: " + str(aliensLeftThisWave), 1, WHITE),
+                    font2.render("남은 적: " + str(aliensLeftThisWave), 1, WHITE),
                     font2.render("점수: " + str(score), 1, WHITE),
                     font2.render("폭탄: " + str(bombsHeld), 1, WHITE),
                     font2.render("코인: "+ str(coinsHeld), 1, WHITE)]

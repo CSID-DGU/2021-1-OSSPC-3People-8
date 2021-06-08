@@ -264,7 +264,7 @@ def main(scr, level, id, language):
 
         else :
             return [font2.render("웨이브: " + str(wave), 1, WHITE),
-                    font2.render("적 남은 수: " + str(aliensLeftThisWave), 1, WHITE),
+                    font2.render("남은 적: " + str(aliensLeftThisWave), 1, WHITE),
                     font2.render("점수: " + str(score), 1, WHITE),
                     font2.render("폭탄: " + str(bombsHeld), 1, WHITE),
                     font2.render("코인: "+ str(coinsHeld), 1, WHITE)]
@@ -1109,7 +1109,7 @@ def main(scr, level, id, language):
                 if language == 'ENG' :
                     nextWaveText = font.render('Wave ' + str(wave + 1) + ' in', 1, WHITE)
                 else :
-                    nextWaveText = font2.render(str(wave + 1) + ' 웨이브 남은 시간', 1, WHITE)
+                    nextWaveText = font2.render(str(wave + 1) + '남은 웨이브 시간', 1, WHITE)
                 nextWaveNum = font.render(
                     str((betweenWaveCount // clockTime) + 1), 1, WHITE)
                 if language == 'ENG' :
