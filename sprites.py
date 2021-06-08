@@ -163,6 +163,10 @@ class BombPowerup(Powerup):
         super().__init__('bomb')
         self.pType = 'bomb'
 
+class DistPowerup(Powerup):
+    def __init__(self):
+        super().__init__('dist')
+        self.pType = 'dist'
 
 class ShieldPowerup(Powerup):
     def __init__(self):
