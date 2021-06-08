@@ -33,8 +33,8 @@ $ python3 main.py
 
 ## Game Controls
 ### Menus
-![image](https://user-images.githubusercontent.com/65498159/121228285-875d0700-c8c7-11eb-802c-e5fe83f12206.png)
- - w/s로 메뉴 커서를 움직일 수 있습니다.
+![image](https://user-images.githubusercontent.com/65498159/121230377-2551d100-c8ca-11eb-8006-50093ce0f337.png)
+ - 화살표키로 메뉴 커서를 움직일 수 있습니다.
  - 마우스로 화면 하단의 CO-OP 버튼을 누르면 협동모드로 이동합니다. PVP 버튼을 누르면 PVP모드로 이동합니다.
  - 로그인을 눌러 기존 계정에 로그인 할 수 있습니다.
  - 계정 생성을 눌러 새 계정을 만들 수 있습니다. 아이디는 4글자, 비밀번호는 3글자 까지 가능합니다.
@@ -48,17 +48,18 @@ $ python3 main.py
  - 화살표 키로 우주선을 움직일 수 있습니다.
  - 스페이스키로 미사일을 발사하여 적을 무찌를 수 있습니다.
  - b키로 폭탄을 사용할 수 있습니다.
+ - 방패, 폭탄, 더블 미사일 아이템이 랜덤으로 드랍됩니다. 방패는 적과 충돌을 1회 무효화합니다. 더블미사일 아이템은 잠깐동안 미사일이 2배로 발사되게 합니다.
  - 적을 많이 무찌르면 Wave가 증가합니다. Wave 증가 카운트다운에서 i키를 누르면 상점에 들어갈 수 있습니다.
  - 상점에서는 게임 내에서 드랍되는 코인으로 아이템을 구매할 수 있습니다.
 
 #### 2. Co-op Mode
-![image](https://user-images.githubusercontent.com/65498159/121228737-1538f200-c8c8-11eb-9657-17fa2d0c01a9.png)
+![image](https://user-images.githubusercontent.com/65498159/121230557-57633300-c8ca-11eb-8366-e74deafe9fba.png)
  - 게임 화면에 또 하나의 우주선이 추가됩니다. 우주선2(green)는 w/a/s/d키로 움직일 수 있으며, v로 미사일을 발사하고 q로 폭탄을 사용합니다.
  - 협동 모드에서는 목숨과 폭탄을 공유합니다.
  - 협동 모드에서는 특별한 아이템인 팀방패가 드랍됩니다. 팀방패는 한 명이 획득하면 다른 한명에게도 적용되는 방패입니다.
 
 #### 3. PVP Mode
-![image](https://user-images.githubusercontent.com/65498159/121228796-271a9500-c8c8-11eb-9896-618c241ec8fa.png)
+![image](https://user-images.githubusercontent.com/65498159/121230445-3995ce00-c8ca-11eb-9a0f-2829d4692897.png)
  - PVP 모드에서는 두 명의 유저가 점수를 경쟁합니다. 우주선2의 조작 방법은 협동 모드와 같습니다.
  - PVP 모드에서는 특별한 아이템인 dist가 드랍됩니다. dist를 먹으면 잠시동안 상대방 화면을 안보이게 만들어 상대를 방해할 수 있습니다.
  - 게임 시작 전 L키를 누르면 플레이어 화면 위치를 바꿀 수 있습니다.
@@ -68,3 +69,27 @@ $ python3 main.py
  - Python >= 3.6
  - pygame == 2.0.1 
  - grequests
+
+# License
+```
+The MIT License (MIT)
+
+Copyright (c) 2014 Chafic Najjar
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+```
