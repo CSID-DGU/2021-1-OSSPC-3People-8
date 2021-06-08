@@ -5,7 +5,7 @@ from collections import deque
 import sys
 import grequests
 
-from sprites import (MasterSprite, Ship, Ship2, Alien, Missile, BombPowerup,CoinPowerup,CoinTwoPowerup,
+from sprites import (MasterSprite, Ship4, Ship5, Alien, Missile, BombPowerup,CoinPowerup,CoinTwoPowerup,
                      DoublemissilePowerup, TeamshieldPowerup, Explosion, Siney, Spikey, Fasty,
                      Roundy, Crawly)
 from database import Database
@@ -42,11 +42,6 @@ class Button:
                 self.lvl_size = -2
         else:
             gameDisplay.blit(img_in,(x,y))
-    def draw(self, screen):
-        # Blit the text.
-        screen.blit(self.txt_surface, (self.rect.x+5, self.rect.y+5))
-        # Blit the rect.
-        pygame.draw.rect(screen, self.color, self.rect, 2)
 
 
 class Keyboard(object):
@@ -68,7 +63,8 @@ def main(scr, level, id, language):
     mode2_lvl_size = 1.6
 
     class size :
-        x_background = scr_size*2
+        x_background_ratio = 2
+        x_background = scr_size*x_background_ratio
         speed = scr_size*0.004
         background = scr_size*4
         backgroundLoc = scr_size*3
@@ -100,13 +96,13 @@ def main(scr, level, id, language):
         hi_achievementy_seq = scr_size*0.043
         selectitemposx = scr_size*0.2
         selectitemposy = scr_size*0.5
-        button1pos_1 = round(x_background*0.03)
-        button2pos_1 = round(x_background*0.46)
+        button1pos_1 = round(x_background*0.08)
+        button2pos_1 = round(x_background*0.48)
         button3pos_1 = round(x_background*0.86)
         buttonpos_2 = round(scr_size*0.9)
-        buttonpos_3 = round(scr_size*0.08)
-        buttonpos_4 = round(scr_size*0.04)
-        button1pos_1_ad = round(x_background*0.02)
+        buttonpos_3 = round(scr_size*0.25)
+        buttonpos_4 = round(scr_size*0.1)
+        button1pos_1_ad = round(x_background*0.07)
         button2pos_1_ad = round(x_background*0.45)
         button3pos_1_ad = round(x_background*0.85)
         button_ad = round(scr_size*0.896)
@@ -158,14 +154,15 @@ def main(scr, level, id, language):
 
 
     def get_hiscores(highScoreTexts, highScorePos) :
-        req = grequests.get(url + '/get_record/')
+        req = grequests.get(url + '/get_record_coop/')
         res = grequests.map([req])
         Scores = res[0].content.decode()[1:-1].split(',')
         hiScores = []
         for i in range(len(Scores)) :
-            if i % 3 == 0 : score_id = Scores[i][2:-1]
-            elif i % 3 == 1 : score_score = int(Scores[i][:])
-            elif i % 3 == 2:
+            if i % 4 == 0 : score_id = Scores[i][2:-1] + ', '
+            elif i % 4 == 1 : score_id += Scores[i][1:-1]
+            elif i % 4 == 2 : score_score = int(Scores[i][:])
+            elif i % 4 == 3:
                 score_accuracy = round(float(Scores[i][:-1])*100, 2)
                 hiScores.append([score_id, score_score, str(score_accuracy)+"%"])
         hiScores = remove_id_overlap(hiScores)
@@ -179,14 +176,15 @@ def main(scr, level, id, language):
             topleft=highScorePos[x].bottomleft) for x in range(-3, 0)])
         showHiScores = True
 
-        req = grequests.get(url + '/get_achievementlist/')
+        req = grequests.get(url + '/get_achievementlist_coop/')
         res = grequests.map([req])
         achievement = res[0].content.decode()[1:-1].split(',')
         achievement_set = []
         for i in range(len(achievement)) :
-            if i % 3 == 0 : achievement_id = str(achievement[i][2:-1])
-            elif i % 3 == 1 : achievement_shoot = int(achievement[i][:])
-            elif i % 3 == 2 :
+            if i % 4 == 0 : achievement_id = str(achievement[i][2:-1]) + ', '
+            elif i % 4 == 1 : achievement_id += str(achievement[i][1:-1])
+            elif i % 4 == 2 : achievement_shoot = int(achievement[i][:])
+            elif i % 4 == 3 :
                 achievement_kill = int(achievement[i][:-1])
                 achievement_set.append([achievement_id, achievement_shoot, achievement_kill])
 
@@ -271,10 +269,10 @@ def main(scr, level, id, language):
                     font2.render("코인: "+ str(coinsHeld), 1, WHITE)]
 
     def get_achieve_record(id) :
-        data = {"id": id, "shoot": 0, "kill": 0}
-        req = grequests.post(url + '/get_achievement/', json=data)
+        data = {"id": id[0] + ',' + id[1], "shoot": 0, "kill": 0}
+        req = grequests.post(url + '/get_achievement_coop/', json=data)
         res = grequests.map([req])
-        _ , shoot_record, kill_record = res[0].content.decode()[1:-1].split(',')
+        _ , _ , shoot_record, kill_record = res[0].content.decode()[1:-1].split(',')
 
         return shoot_record, kill_record
 
@@ -326,8 +324,8 @@ def main(scr, level, id, language):
     alienPeriod = 60 / speed
     clockTime = 60  # maximum FPS
     clock = pygame.time.Clock()
-    ship = Ship()
-    ship2 = Ship2()
+    ship = Ship4()
+    ship2 = Ship5()
     initialAlienTypes = (Siney, Spikey)
     powerupTypes = (BombPowerup, TeamshieldPowerup, DoublemissilePowerup)
     coinTypes = (CoinPowerup,CoinTwoPowerup)
@@ -427,7 +425,8 @@ def main(scr, level, id, language):
                     font.render("kill", 1, WHITE), font.render("0", 1, WHITE)],
                     font.render('ID', 1, RED),
                     font.render('PASSWORD', 1, RED),
-                    font.render('GAME OVER', 1, WHITE)]
+                    font.render('GAME OVER', 1, WHITE),
+                    font.render('SPEED UP!', 1, RED)]
 
     text_kor_set = [font2.render('게임 시작', 1, WHITE),
                     font2.render('로그인', 1, WHITE),
@@ -449,9 +448,10 @@ def main(scr, level, id, language):
                     font2.render("처치", 1, WHITE), font.render("0", 1, WHITE)],
                     font2.render('아이디', 1, RED),
                     font2.render('비밀번호', 1, RED),
-                    font2.render('게임 종료', 1, WHITE)]
+                    font2.render('게임 종료', 1, WHITE),
+                    font2.render('스피드 업!', 1, RED)]
 
-    startText, loginText, hiScoreText, createaccountText, fxText, fxOnText, fxOffText, musicText, achievementText, musicOnText, musicOffText, quitText, restartText, languageText, logoutText, achieveTexts, idText, pwText, gameOverText = set_language(language)
+    startText, loginText, hiScoreText, createaccountText, fxText, fxOnText, fxOffText, musicText, achievementText, musicOnText, musicOffText, quitText, restartText, languageText, logoutText, achieveTexts, idText, pwText, gameOverText, speedUpText = set_language(language)
     ### 언어 설정 끝
 
     gameOverPos = gameOverText.get_rect(center=screen.get_rect().center)
@@ -623,9 +623,9 @@ def main(scr, level, id, language):
 
     # 메인 메뉴
     while inMenu:
-        scr_x , scr_y = pygame.display.get_surface().get_size()
+        scr_x, scr_y = pygame.display.get_surface().get_size()
         if size.x_background != scr_x or scr_size != scr_y :
-            return min(scr_x, scr_y), level_size, id, language    # 메뉴화면에서만 창 사이즈 크기 확인하고, 변경되면 main 재시작
+            return min(scr_x//size.x_background_ratio, scr_y), level_size, id, language    # 메뉴화면에서만 창 사이즈 크기 확인하고, 변경되면 main 재시작
         clock.tick(clockTime)
 
         screen, background, backgroundLoc = background_update(screen, background, backgroundLoc)
@@ -767,7 +767,7 @@ def main(scr, level, id, language):
             screen.blit(title, titleRect)
 
         #Text Update
-        startText, loginText, hiScoreText, createaccountText, fxText, fxOnText, fxOffText, musicText, achievementText, musicOnText, musicOffText, quitText, restartText, languageText, logoutText, achieveTexts, idText, pwText, gameOverText = set_language(language)
+        startText, loginText, hiScoreText, createaccountText, fxText, fxOnText, fxOffText, musicText, achievementText, musicOnText, musicOffText, quitText, restartText, languageText, logoutText, achieveTexts, idText, pwText, gameOverText, speedUpText = set_language(language)
 
         for txt, pos in textOverlays:
             screen.blit(txt, pos)
@@ -1085,7 +1085,7 @@ def main(scr, level, id, language):
                         alien.table()
                         Explosion.position(alien.rect.center)
                         aliensLeftThisWave -= 1
-                        ship.lives -=1
+                        ship.lives -= 1
 
             if pygame.sprite.collide_rect(alien, ship2):
                 if ship2.shieldUp:
@@ -1209,7 +1209,6 @@ def main(scr, level, id, language):
                 shopPos = shopText.get_rect(midtop=nextWaveNumPos.midbottom)
                 textposition.extend([nextWavePos, nextWaveNumPos,shopPos])
                 if wave % 4 == 0:
-                    speedUpText = font.render('SPEED UP!', 1, RED)
                     speedUpPos = speedUpText.get_rect(
                         midtop=shopPos.midbottom)
                     text.append(speedUpText)
@@ -1281,6 +1280,7 @@ def main(scr, level, id, language):
     idBuffer = []
     password = ''
     pwBuffer = []
+    login_status = 3
     is_input_id = True
 
     while True:
@@ -1288,16 +1288,17 @@ def main(scr, level, id, language):
         # login event handling
         if showLogin == True :
             for event in pygame.event.get():
-                if is_input_id :
-                    if (event.type == pygame.QUIT
+                if (event.type == pygame.QUIT
                         or not showLogin
                         and event.type == pygame.KEYDOWN
-                            and event.key == pygame.K_ESCAPE):
-                        pygame.quit()
-                        sys.exit()
-                    elif (event.type == pygame.KEYDOWN
+                        and event.key == pygame.K_ESCAPE):
+                    pygame.quit()
+                    sys.exit()
+
+                elif login_status == 3 :
+                    if (event.type == pygame.KEYDOWN 
                         and event.key in Keyboard.keys.keys()
-                        and len(idBuffer) < id_len):
+                        and len(idBuffer) < id_len) :
                         idBuffer.append(Keyboard.keys[event.key])
                         id = ''.join(idBuffer)
                     elif (event.type == pygame.KEYDOWN
@@ -1308,15 +1309,10 @@ def main(scr, level, id, language):
                     elif (event.type == pygame.KEYDOWN
                         and event.key == pygame.K_RETURN
                         and len(id) > 0):
-                        is_input_id = False
-                else :
-                    if (event.type == pygame.QUIT
-                        or not showLogin
-                        and event.type == pygame.KEYDOWN
-                            and event.key == pygame.K_ESCAPE):
-                        pygame.quit()
-                        sys.exit()
-                    elif (event.type == pygame.KEYDOWN
+                        login_status -= 1
+
+                elif login_status == 2 :
+                    if (event.type == pygame.KEYDOWN
                         and event.key in Keyboard.keys.keys()
                         and len(pwBuffer) < pw_len):
                         pwBuffer.append(Keyboard.keys[event.key])
@@ -1329,13 +1325,54 @@ def main(scr, level, id, language):
                     elif (event.type == pygame.KEYDOWN
                         and event.key == pygame.K_RETURN
                         and len(password) > 0):
-                        is_input_id, inMenu, ship.alive, ship2.alive, showLogin = True, True, True, True, False
                         data = {"id": id, "password": password}
                         req = grequests.post(url + '/login/', json=data)
                         res = grequests.map([req])
+                        idBuffer = []
+                        pwBuffer = []
+                        id_temp = id
+                        id = ''
+                        password = ''
+                        login_status -= 1
+
+                elif login_status == 1 :
+                    if (event.type == pygame.KEYDOWN
+                        and event.key in Keyboard.keys.keys()
+                        and len(idBuffer) < id_len):
+                        idBuffer.append(Keyboard.keys[event.key])
+                        id = ''.join(idBuffer)
+                    elif (event.type == pygame.KEYDOWN
+                        and event.key == pygame.K_BACKSPACE
+                        and len(idBuffer) > 0):
+                        idBuffer.pop()
+                        id = ''.join(idBuffer)
+                    elif (event.type == pygame.KEYDOWN
+                        and event.key == pygame.K_RETURN
+                        and len(id) > 0):
+                        login_status -= 1
+
+                else :
+                    if (event.type == pygame.KEYDOWN
+                        and event.key in Keyboard.keys.keys()
+                        and len(pwBuffer) < pw_len):
+                        pwBuffer.append(Keyboard.keys[event.key])
+                        password = ''.join(pwBuffer)
+                    elif (event.type == pygame.KEYDOWN
+                        and event.key == pygame.K_BACKSPACE
+                        and len(pwBuffer) > 0):
+                        pwBuffer.pop()
+                        password = ''.join(pwBuffer)
+                    elif (event.type == pygame.KEYDOWN
+                        and event.key == pygame.K_RETURN
+                        and len(password) > 0):
+                        login_status, inMenu, ship.alive, ship2.alive, showLogin = 3, True, True, True, False
+                        data = {"id": id, "password": password}
+                        req = grequests.post(url + '/login/', json=data)
+                        res2 = grequests.map([req])
+                        id = [id_temp, id]
                         if req.response == None : return scr_size, level_size, '', language
-                        if res[0].content == b'"Login Success"' :
-                            data = {"id": id, "language": ''}
+                        if res[0].content == b'"Login Success"' and res2[0].content == b'"Login Success"':
+                            data = {"id": id[0], "language": ''}
                             req = grequests.post(url + '/get_language/', json=data)
                             res = grequests.map([req])
                             if req.response == None : return scr_size, level_size, '', language
@@ -1433,20 +1470,20 @@ def main(scr, level, id, language):
                     Database.setScore(hiScores, (name, score, accuracy))
                     return scr_size, level_size, id, language
 
-        else : # 로그인 상태 기록 저장(화면을 만들어야 함)
-            data = {"id": id, "score": score, "accuracy": accuracy}
-            req = grequests.post(url + '/save_record/', json=data)
+        else : 
+            data = {"id": id[0] + ',' + id[1], "score": score, "accuracy": accuracy}
+            req = grequests.post(url + '/save_record_coop/', json=data)
             res = grequests.map([req])
             if req.response == None : return scr_size, level_size, '', language
             print(res[0].content)
-            data = {"id": id, "shoot": shoot_count, "kill": kill_count}
-            req = grequests.post(url + '/record_achievement/', json=data)
+            data = {"id": id[0] + ',' + id[1], "shoot": shoot_count, "kill": kill_count}
+            req = grequests.post(url + '/record_achievement_coop/', json=data)
             res = grequests.map([req])
             if req.response == None : return scr_size, level_size, '', language
             print(res[0].content)
             return scr_size, level_size, id, language
 
-        if isHiScore: # 로그인 상태일 때, 수정 필요
+        if isHiScore: 
             hiScorePos = hiScoreText.get_rect(midbottom=screen.get_rect().center)
             scoreText = font.render(str(score), 1, WHITE)
             scorePos = scoreText.get_rect(midtop=hiScorePos.midbottom)
