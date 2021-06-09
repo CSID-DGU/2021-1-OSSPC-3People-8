@@ -22,15 +22,17 @@ COINSHOP : I (between stages)
 
 <h3>PLAYER1</h3> 
 UP, DOWN, LEFT, RIGHT : ARROW_UP, ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT<br>
+MISSILE : SPACE<br>
 BOMB : B
 
 <h3>PLAYER2</h3> 
 UP, DOWN, LEFT, RIGHT : W, S, A, D<br>
-BOMB : B
+MISSILE : V<br>
+BOMB : Q
 
 <h3>COMMON</h3>
 CHANGE PLAYER : L (before start)<br>
-START : H<br>
+START : U<br>
 PAUSE : P<br>
 COINSHOP : I (only coop mode, between stages)
 
