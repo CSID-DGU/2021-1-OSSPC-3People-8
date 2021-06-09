@@ -98,7 +98,7 @@ def main(scr, level, id, language):
         button2pos_1_ad = round(x_background*0.42)
         button3pos_1_ad = round(x_background*0.85)
         button_ad = round(scr_size*0.896)
-        lifex = scr_size * 0.86
+        lifex = scr_size * 0.80
         lifey = scr_size * 0.01
 
     def kill_alien(alien, aliensLeftThisWave, kill_count, score) :
@@ -270,11 +270,11 @@ def main(scr, level, id, language):
     curTime = 0
     aliensThisWave, aliensLeftThisWave, Alien.numOffScreen = 10, 10, 10
     wave = 1
-    bombsHeld = 3000
+    bombsHeld = 3
     doublemissile = False #doublemissile아이템이 지속되는 동안(5초) 미사일이 두배로 발사됨
     Itemdouble = False
     score = 0
-    bombsHeld2 = 3000
+    bombsHeld2 = 3
     doublemissile2 = False
     Itemdouble2 = False
     score2 = 0
@@ -293,7 +293,7 @@ def main(scr, level, id, language):
     distTime = 2 * clockTime # 2초동안 화면이 안보임
     distItem = 0 # 화면 안보이는 시간(distItem = distTime)
     distItem2 = 0
-    before_game = True 
+    before_game = True
 
     hiScores = Database.getScores()
     highScoreTexts = [font.render("NAME", 1, RED),
@@ -321,7 +321,7 @@ def main(scr, level, id, language):
     pauseRect = pygame.Rect(0, 0, pause.get_width(), pause.get_height())
     titleRect.midtop = screen.get_rect().inflate(0, -size.middletoppos).midtop
     pauseRect.midtop = screen.get_rect().inflate(0, -size.middletoppos).midtop
-    
+
     dist, distRect = load_image('black.png', WHITE)
     dist = pygame.transform.scale(dist, (scr_size, scr_size))
     distRect = pygame.Rect(0, 0, dist.get_width(), dist.get_height())
@@ -381,7 +381,7 @@ def main(scr, level, id, language):
     player2Pos = player2Text.get_rect(topleft=screen.get_rect().midtop)
     bstartPos = bstartText.get_rect(center=screen.get_rect().center)
     switchPos = switchText.get_rect(midbottom=screen.get_rect().midbottom)
-                
+
     selection = 1
     soundFX = Database.getSound()
     music = Database.getSound(music=True)
@@ -527,7 +527,7 @@ def main(scr, level, id, language):
                     playerText, player2Text, bstartText, switchText = beforegame_text_update(language)
                 else :
                     player2Text, playerText, bstartText, switchText = beforegame_text_update(language)
-                
+
         if half_tf:
             screen, background, backgroundLoc = background_update_half(screen, background, backgroundLoc)
         else:
@@ -619,13 +619,13 @@ def main(scr, level, id, language):
                     newBomb.add(bombs2, alldrawings)
                     if soundFX:
                         bomb_sound.play()
-                
+
             # pause 구현부분
             elif (event.type == pygame.KEYDOWN and event.key == pygame.K_p):
                 inPmenu = True
                 menuDict = {1: restartPos, 2: fxPos, 3: musicPos, 4: quitPos}
                 selectPos = selectText.get_rect(topright=restartPos.topleft)
-                
+
                 while inPmenu:
                     clock.tick(clockTime)
                     screen, background, backgroundLoc = background_update(screen, background, backgroundLoc)
@@ -640,7 +640,7 @@ def main(scr, level, id, language):
                                             musicOnPos if music else musicOffPos])
 
                     screen.blit(pause, pauseRect)
-                        
+
                     for txt, pos in textOverlays:
                         screen.blit(txt, pos)
                     pygame.display.flip()
@@ -681,7 +681,7 @@ def main(scr, level, id, language):
 
                         selectPos = selectText.get_rect(topright=menuDict[selection].topleft)
 
-            
+
      # Collision Detection
         # Aliens
         for alien in Alien.active:
@@ -878,7 +878,7 @@ def main(scr, level, id, language):
                     Itemdouble = True
 
                 selectPos = selectText.get_rect(topright=menuDict[selection].topleft)
-                
+
                 textOverlays = zip([restartText, fxText,
                                     musicText, quitText, selectText,
                                     fxOnText if soundFX else fxOffText,
@@ -893,12 +893,12 @@ def main(scr, level, id, language):
                 pygame.display.flip()
         textOverlays = zip(text, textposition)
 
-     # Update and draw all sprites and text 
+     # Update and draw all sprites and text
         if half_tf:
             screen, background, backgroundLoc = background_update_half(screen, background, backgroundLoc)
         else:
             screen, background, backgroundLoc = background_update_half_two(screen, background, backgroundLoc)
-        
+
         allsprites.update()
         allsprites.draw(screen)
         alldrawings.update()
@@ -928,12 +928,12 @@ def main(scr, level, id, language):
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN :
-                return scr_size, level_size, id, language 
+                return scr_size, level_size, id, language
 
         ship1winPos = ship1winText.get_rect(center=screen.get_rect().center)
         ship2winPos = ship2winText.get_rect(center=screen.get_rect().center)
         drawPos = drawText.get_rect(center=screen.get_rect().center)
-        
+
     # Update and draw all sprites
         screen, background, backgroundLoc = background_update(screen, background, backgroundLoc)
         allsprites.update()
@@ -954,5 +954,5 @@ def main(scr, level, id, language):
                 screen.blit(ship2winText, ship2winPos)
             elif score == score2 :
                 screen.blit(drawText, drawPos)
-            
+
         pygame.display.flip()

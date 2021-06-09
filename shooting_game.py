@@ -109,7 +109,7 @@ def main(scr, level, id, language):
         button2pos_1_ad = round(scr_size*0.43)
         button3pos_1_ad = round(scr_size*0.74)
         button_ad = round(scr_size*0.896)
-        lifex = scr_size * 0.84
+        lifex = scr_size * 0.82
         lifey = scr_size * 0.02
 
     def achievement_posx(i) :
