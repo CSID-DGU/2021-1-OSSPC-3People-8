@@ -5,6 +5,7 @@ https://github.com/jpritcha3-14/shooting-game
 
 Python >= 3.6, pygame == 2.0.1, grequests
 
+# Menu
 
 SELECT MENU : ARROW_KEY<br>
 CHANGE MODE : MOUSE CLICK
