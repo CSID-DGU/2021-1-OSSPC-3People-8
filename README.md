@@ -26,7 +26,7 @@ $ python3 main.py
 ```
 
 ## Game Controls
-![image](https://user-images.githubusercontent.com/65498159/121734381-a958c280-cb2f-11eb-9e1d-d2e723060157.png)
+![image](https://user-images.githubusercontent.com/65498159/121736179-300e9f00-cb32-11eb-8a62-4f0304338d4c.png)
 ### Menus
 ![image](https://user-images.githubusercontent.com/65498159/121725594-6b09d600-cb24-11eb-9baa-09985d28eaef.png)
  - 화살표 상하 키로 메뉴 커서를 움직일 수 있습니다.
@@ -45,9 +45,11 @@ $ python3 main.py
 ### Game
 #### 1. Basic Rules
  - 우주선으로 미사일을 쏘아 적(외계인)을 격추하여 점수를 얻는 게임입니다.
+ - 적과 우주선이 충돌하면 우측 상단의 life가 줄어듭니다. life 3개가 모두 사라지면 게임이 종료됩니다.
  - 화살표 키로 우주선![ship](https://user-images.githubusercontent.com/65498159/121725939-d94e9880-cb24-11eb-891f-0734458abf66.png)을 움직일 수 있습니다.
  - 스페이스키로 미사일![missile](https://user-images.githubusercontent.com/65498159/121725969-e23f6a00-cb24-11eb-9242-7e2bd8e6b62f.png)을 발사하여 적을 무찌를 수 있습니다.
  - b키로 폭탄![bomb_powerup](https://user-images.githubusercontent.com/65498159/121726003-ec616880-cb24-11eb-802d-f5d71eae7285.png)을 사용할 수 있습니다.
+ - 게임 도중 p키를 누르면 일시정지 할 수 있습니다.
  - 방패![shield_powerup](https://user-images.githubusercontent.com/65498159/121726056-fd11de80-cb24-11eb-98c4-1566acd989bd.png), 폭탄![bomb_powerup](https://user-images.githubusercontent.com/65498159/121726003-ec616880-cb24-11eb-802d-f5d71eae7285.png), 더블 미사일![doublemissile_powerup](https://user-images.githubusercontent.com/65498159/121726123-174bbc80-cb25-11eb-8dff-aa00d3929be2.png) 아이템이 랜덤으로 드랍됩니다. 방패는 적과 충돌을 1회 무효화합니다. 더블미사일 아이템은 잠깐동안 미사일이 2배로 발사되게 합니다.
  - 외계인은 색깔별로 서로 다른 이동패턴을 가지고 있으며, 격추하였을 때 얻을 수 있는 점수가 다릅니다. 
 ![image](https://user-images.githubusercontent.com/65498159/121726665-d43e1900-cb25-11eb-8862-d10e37284723.png)
@@ -94,13 +96,13 @@ $ python3 main.py
 ### 코드 구성
 ```
 main.py(38 lines): 모드와 화면 크기를 관리하는 코드로 게임 플레이를 위해 실행해야 하는 코드 
-shooting_game.py: 게임의 기본 모드를 실행하는 코드
+shooting_game.py(1407 lines): 게임의 기본 모드를 실행하는 코드
 mode_one.py(1407 lines): 협동모드를 실행하는 코드
 mode_two.py(958 lines): PVP모드를 실행하는 코드
-load.py (38 lines): 게임 내의 이미지와 음악을 로드하는 함수를 선언하는 코드
-sprites.py (624 lines): 게임 내에서 사용되는 객체를 정의하는 코드
+load.py(38 lines): 게임 내의 이미지와 음악을 로드하는 함수를 선언하는 코드
+sprites.py(624 lines): 게임 내에서 사용되는 객체를 정의하는 코드
 database.py (61 lines): 하이스코어를 저장하는 hiScore.db를 생성하고, db에서 인게임으로 점수를 불러오는 코드
-server_code.txt: 서버에 업로드한 코드를 txt형식으로 저장해 놓은 파일(실제 코드는 AWS EC2에서 구동 중)
+server_code.txt(189 lines): 서버에 업로드한 코드를 txt형식으로 저장해 놓은 파일(실제 코드는 AWS EC2에서 구동 중)
 ```
 
 ### 서버
