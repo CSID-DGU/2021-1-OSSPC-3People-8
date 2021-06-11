@@ -73,3 +73,4 @@ $ python3 main.py
  - Python >= 3.6
  - pygame == 2.0.1 
  - grequests
+
