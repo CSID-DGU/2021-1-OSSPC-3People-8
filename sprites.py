@@ -354,12 +354,12 @@ class Ship3(MasterSprite):
         newhoriz = self.rect.move((self.horiz, 0))
         newvert = self.rect.move((0, self.vert))
 
-        if not (newpos.left <= scr_size
+        if not (newpos.left <= self.area.left
                 or newpos.top <= self.area.top
                 or newpos.right >= self.area.right
                 or newpos.bottom >= self.area.bottom):
             self.rect = newpos
-        elif not (newhoriz.left <= scr_size
+        elif not (newhoriz.left <= self.area.left
                   or newhoriz.right >= self.area.right):
             self.rect = newhoriz
         elif not (newvert.top <= self.area.top
