@@ -108,17 +108,17 @@ server_code.txt(189 lines): 서버에 업로드한 코드를 txt형식으로 저
 ### 서버
  - AWS EC2 Ubuntu 환경에 docker, docker-compose 설치 (Docker 공식 문서 참고)
  - 파이썬 웹프레임워크인 fastapi를 빌드하기 위한 dockerfile 작성
-''' 
+```
 # Dockerfile_fastapi (./)
 FROM python:3.8-alpine
 RUN pip install fastapi uvicorn
 EXPOSE 80
 COPY ./app /app
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
-'''
+```
  - ./app 폴더에 fastapi api 작성 코드 업로드 (server_code.txt)
  - docker-compose.yml 작성 후 docker-compose up -d 명령어로 백그라운드에서 빌드
-'''
+```
 version: "3"
 
 services:
@@ -130,4 +130,4 @@ services:
     ports:
       - "80:80"
     container_name: fastapicontainer
-'''
+```
