@@ -148,13 +148,13 @@ services:
 
 ## 주의사항
 
-- OS버전 및 개인 환경에 따라 다음과 같은 문제가 발생할 수 있습니다.
+- OS버전 및 개인 환경에 따라 다음과 같은 문제가 발생할 수 있습니다.  
 
-- 한글 폰트가 깨지는 현상 
+- 한글 폰트가 깨지는 현상
 ![image](https://user-images.githubusercontent.com/65498159/121772885-4872ce00-cbb3-11eb-86bc-2115ae28bf7e.png)  
 
 -> 다음과 같이 해결할 수 있습니다.  
-한글 사용을 위해, NanumGothic 폰트가 필요합니다.
+한글 사용을 위해, NanumGothic 폰트가 필요합니다.  
 ```
 $ sudo apt-get install fonts-nanum*
 ```
@@ -168,7 +168,7 @@ $ sudo fc-cache -fv
 python3.6 이상이 설치 되어 있는 버전이면 20.04 이하 버전을 사용해도 상관없지만, python3.5가 설치되어있는 Ubuntu 16.04와 같은 경우는 게임이 실행되지 않습니다. 
 이 경우에는 3.6 버전을 수동으로 설치해주어야합니다.
 
- -> 다음과 같이 해결할 수 있습니다.
+ -> 다음과 같이 해결할 수 있습니다.  
 ```$ sudo apt-get upgrade python3```로 업그레이드 한 후에 버전 확인(```$ python3 --version```)을 해도 3.5로 확인된다면 다음 명령어로 3.6 버전을 설치할 수 있습니다.
 ```
 $ sudo add-apt-repository ppa:jonathonf/python-3.6
@@ -184,9 +184,9 @@ $ sudo update-alternatives --config python3
 
 
 - grequests 에러
-게임 실행 시 grequests 관련 에러가 발생하며, 게임이 실행 되지 않을 수 있습니다.
+게임 실행 시 grequests 관련 에러가 발생하며, 게임이 실행 되지 않을 수 있습니다.  
 
--> 다음과 같이 해결할 수 있습니다.
+-> 다음과 같이 해결할 수 있습니다.  
 ```
 $ apt-get install libevent-dev 
 ```
@@ -195,7 +195,7 @@ $ apt-get install libevent-dev
 
 - 'main'이 없다는 에러메세지가 뜨며 실행되지 않는 경우
 - 창 크기를 조절하면 게임이 강제로 종료되는 경우
-- 그 외 게임이 실행 되지 않는 경우 
+- 그 외 게임이 실행 되지 않는 경우
 
 -> pygame이 python3에 대해 설치되었는지(반드시 ```pip3```로 install 해야합니다), pygame 버전이 2.0.1 이상인지 확인해주세요.  
 -> ```pip3```가 없을 경우 ```sudo apt-get install python3-pip```로 설치할 수 있습니다.
