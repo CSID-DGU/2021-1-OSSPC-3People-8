@@ -777,7 +777,7 @@ def main(scr, level, id, language):
                 elif powerup.pType == 'dist':
                     distItem2 = distTime
                 elif powerup.pType == 'shield':
-                    ship.shieldUp = True
+                    ship2.shieldUp = True
                 elif powerup.pType == 'doublemissile':
                     doublemissile2 = True
                 powerup.kill()
@@ -795,7 +795,7 @@ def main(scr, level, id, language):
         if half_tf :
             waveText, leftText, scoreText, scoreText2, bombText, bombText2, ship1winText, ship2winText, drawText = ingame_text_update(language)
         else :
-            waveText, leftText, scoreText2, scoreText, bombText, bombText2, ship1winText, ship2winText, drawText = ingame_text_update(language)
+            waveText, leftText, scoreText2, scoreText, bombText2, bombText, ship1winText, ship2winText, drawText = ingame_text_update(language)
 
         wavePos = waveText.get_rect(topright=screen.get_rect().midtop)
         leftPos = leftText.get_rect(topleft=screen.get_rect().midtop)
@@ -910,11 +910,18 @@ def main(scr, level, id, language):
         ship2.draw_lives(screen, size.lifex, size.lifey)
         if distItem >= 0 :
             distItem -= 1
-            distRect.topleft = screen.get_rect().inflate(0, 0).midtop
+            if half_tf :
+                distRect.topleft = screen.get_rect().inflate(0, 0).midtop
+                
+            else :
+                distRect.topright = screen.get_rect().inflate(0, 0).midtop
             screen.blit(dist, distRect)
         if distItem2 >= 0 :
             distItem2 -= 1
-            distRect2.topright = screen.get_rect().inflate(0, 0).midtop
+            if half_tf :
+                distRect2.topright = screen.get_rect().inflate(0, 0).midtop
+            else :
+                distRect2.topleft = screen.get_rect().inflate(0, 0).midtop
             screen.blit(dist2, distRect2)
 
         pygame.display.flip()
