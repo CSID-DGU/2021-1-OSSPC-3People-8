@@ -69,10 +69,10 @@ $ python3 main.py
 
 #### 3. PVP Mode
 ![image](https://user-images.githubusercontent.com/65498159/121729401-63006500-cb29-11eb-9777-987ab6c0ae26.png)
- - PVP 모드는 두 명의 플레이어가 점수를 경쟁하는 모드입니다. 
- - 초록색 우주선![ship2](https://user-images.githubusercontent.com/65498159/121728191-e4ef8e80-cb27-11eb-9e41-255b8f886181.png)의 조작 방법은 협동 모드와 같습니다.
- - 빨간색 우주선![ship](https://user-images.githubusercontent.com/65498159/121729672-b377c280-cb29-11eb-9b75-d5f9ac353533.png)의 조작 방법은 기본 모드와 같습니다.
- - 게임 시작 전 L키를 누르면 플레이어 화면 위치를 바꿀 수 있습니다. U키를 누르면 게임을 시작합니다.
+ - PVP 모드는 두 명의 플레이어가 경쟁하는 모드입니다. 적과 충돌하지 않고 더 오래 살아남는 쪽이 승리합니다.
+ - 플레이어 1은 화살표키로 우주선을 움직이고 스페이스키로 미사일을 발사, b로 폭탄을 사용할 수 있습니다.
+ - 플레이어 2는 w/a/s/d키로 우주선을 움직이고 v로 미사일을 발사, q로 폭탄을 사용할 수 있습니다.
+ - 게임 시작 전 L키를 누르면 플레이어 화면 위치와 우주선 색을 바꿀 수 있습니다. U키를 누르면 게임을 시작합니다.
 ![image](https://user-images.githubusercontent.com/65498159/121730113-3b5dcc80-cb2a-11eb-9c4b-6234dca87ae1.png)
  - PVP 모드에서는 특별한 방해 아이템![dist_powerup](https://user-images.githubusercontent.com/65498159/121729868-e8841500-cb29-11eb-9a00-6cf048e184cf.png)이 드랍됩니다. 방해 아이템을 먹으면 잠시동안 상대방 화면을 안보이게 만들어 상대를 방해할 수 있습니다.
  - PVP 모드에서는 최고기록과 업적, 로그인 및 로그아웃을 이용할 수 없습니다.
