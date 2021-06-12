@@ -375,7 +375,7 @@ def main(scr, level, id, language):
     coinTime = 8 * clockTime # coin 구현
     coinTimeLeft = coinTime # coin 구현
     font = pygame.font.Font(None, size.font_eng)
-    font2 = pygame.font.SysFont('hy견고딕', size.font_kor)
+    font2 = pygame.font.SysFont('NanumGothicBold', size.font_kor)
     inMenu = True
 
     hiScores = Database.getScores()
