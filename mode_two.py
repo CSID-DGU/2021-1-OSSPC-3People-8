@@ -73,7 +73,7 @@ def main(scr, level, id, language):
         star_s = round(scr_size*0.004)
         star_l = round(scr_size*0.01)
         font_eng = round(scr_size*0.065)
-        font_kor =  round(scr_size*0.045)
+        font_kor =  round(scr_size*0.040)
         toppos = scr_size*0.2
         ratio = scr_size*0.002
         middletoppos = scr_size*0.35
@@ -334,12 +334,12 @@ def main(scr, level, id, language):
 
 
     text_eng_set = [font.render('START GAME', 1, WHITE),
-                    font.render('SOUND FX ', 1, WHITE),
-                    font.render('ON', 1, RED),
-                    font.render('OFF', 1, RED),
+                    font.render('SOUND FX', 1, WHITE),
+                    font.render('   ON', 1, RED),
+                    font.render('   OFF', 1, RED),
                     font.render('MUSIC', 1, WHITE),
-                    font.render('ON', 1, RED),
-                    font.render('OFF', 1, RED),
+                    font.render('   ON', 1, RED),
+                    font.render('   OFF', 1, RED),
                     font.render('QUIT', 1, WHITE),
                     font.render('RESTART', 1, WHITE),
                     font.render('LANGUAGE', 1, WHITE),
