@@ -856,9 +856,9 @@ def main(scr, level, id, language):
                 speedUpPos = speedUpText.get_rect(midtop=nextWaveNumPos.midbottom)
                 textposition.append(speedUpPos)
             elif betweenWaveCount == 0:
-                speed += speedup
-                MasterSprite.speed = speed
                 if wave % 4 == 0:
+                    speed += speedup
+                    MasterSprite.speed = speed
                     ship.initializeKeys()
                     ship2.initializeKeys()
                     aliensThisWave = setaliennum
