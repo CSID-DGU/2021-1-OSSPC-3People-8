@@ -287,7 +287,7 @@ def main(scr, level, id, language):
     betweenDoubleCount = betweenDoubleTime
     betweenDoubleCount2 = betweenDoubleTime
     font = pygame.font.Font(None, size.font_eng)
-    font2 = pygame.font.SysFont('hy견고딕', size.font_kor)
+    font2 = pygame.font.SysFont('nanumgothic', size.font_kor)
     inMenu = True
     half_tf = True
     distTime = 2 * clockTime # 2초동안 화면이 안보임
