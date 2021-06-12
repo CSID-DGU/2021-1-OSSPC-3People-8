@@ -25,6 +25,15 @@ $ cd 2021-OSSP-3People-8
 $ python3 main.py
 ```
 
+한글 사용을 위해, NanumGothic 폰트가 필요합니다.
+```
+$ sudo apt-get install fonts-nanum*
+```
+설치 후, Ubuntu를 재시작하거나 아래 명령어를 입력합니다.
+```
+$ sudo fc-cache -fv
+```
+
 ## Game Controls
 ![image](https://user-images.githubusercontent.com/65498159/121736179-300e9f00-cb32-11eb-8a62-4f0304338d4c.png)
 ### Menus
