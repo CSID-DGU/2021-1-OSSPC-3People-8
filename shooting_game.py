@@ -348,7 +348,7 @@ def main(scr, level, id, language):
     ship_explode_sound = load_sound('ship_explode.ogg')
     load_music('music_loop.ogg')
 
-    aliennum = 20 # 아이템 나오는 alien 숫자(aliennum 이상 남은 경우)
+    aliennum = 3 # 아이템 나오는 alien 숫자(aliennum 이상 남은 경우)
     setaliennum = 10 # 4웨이브마다 초기 웨이브 수
     speedup = 0.5 # 4웨이브마다 speed += speedup
     aliennumup = 2 # 4웨이브 주기로 alienthiswave = int(alienthiswave * aliennumup)
