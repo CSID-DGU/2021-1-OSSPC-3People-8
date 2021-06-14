@@ -1014,6 +1014,7 @@ def main(scr, level, id, language):
                     alien.table()
                     Explosion.position(alien.rect.center)
                     aliensLeftThisWave, kill_count, score = kill_alien(alien, aliensLeftThisWave, kill_count, score)
+                    missilesFired += 1
                     if soundFX:
                         alien_explode_sound.play()
             for missile in Missile.active:
