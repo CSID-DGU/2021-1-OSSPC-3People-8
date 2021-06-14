@@ -691,6 +691,7 @@ def main(scr, level, id, language):
                     alien.table()
                     Explosion.position(alien.rect.center)
                     aliensLeftThisWave, kill_count, score = kill_alien(alien, aliensLeftThisWave, kill_count, score)
+                    missilesFired += 1
                     if soundFX:
                         alien_explode_sound.play()
             for bomb in bombs2:
@@ -912,7 +913,7 @@ def main(scr, level, id, language):
             distItem -= 1
             if half_tf :
                 distRect.topleft = screen.get_rect().inflate(0, 0).midtop
-                
+
             else :
                 distRect.topright = screen.get_rect().inflate(0, 0).midtop
             screen.blit(dist, distRect)
