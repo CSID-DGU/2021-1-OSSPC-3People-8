@@ -227,7 +227,7 @@ def main(scr, level, id, language):
         screen.blit(
             background, (0, 0), area=pygame.Rect(
                 0, backgroundLoc, size.x_background, scr_size))
-        backgroundLoc -= speed
+        backgroundLoc -= (speed*0.5)
         if backgroundLoc - speed <= speed:
             backgroundLoc = size.backgroundLoc
         return screen, background, backgroundLoc
