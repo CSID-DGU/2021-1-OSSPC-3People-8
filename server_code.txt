@@ -136,7 +136,7 @@ async def get_achievement(achievement: Achievement):
                 coop_achievement_list[i][3] += achievement.kill
                 return "Saved Successfully"
     
-    coop_achievement_list.append(id, id2, achievement.shoot, achievement.kill)
+    coop_achievement_list.append([id, id2, achievement.shoot, achievement.kill])
     return "Saved Successfully"
 
 @app.post("/get_achievement_coop/")
@@ -149,7 +149,8 @@ async def get_achievement(achievement: Achievement):
         if coop_achievement_list[i][1] == id :
             if coop_achievement_list[i][0] == id2 :
                 return coop_achievement_list[i]
-    return "Not found"
+    coop_achievement_list.append([id, id2, achievement.shoot, achievement.kill])
+    return coop_achievement_list[-1]
 
 @app.post("/login_coop/")
 async def find_id(account: Account):

@@ -4,7 +4,9 @@ import random
 from collections import deque
 import sys
 import grequests
+import time
 
+import sprites
 from sprites import (MasterSprite, Ship2, Ship3, Alien, Missile, BombPowerup, DistPowerup,
                      ShieldPowerup, DoublemissilePowerup, Explosion, Siney, Spikey, Fasty,
                      Roundy, Crawly)
@@ -100,6 +102,166 @@ def main(scr, level, id, language):
         button_ad = round(scr_size*0.896)
         lifex = scr_size * 0.80
         lifey = scr_size * 0.01
+
+    def set_size(scr_size) :
+        size.x_background = scr_size*size.x_background_ratio
+        size.speed = scr_size*0.004
+        size.background = scr_size*4
+        size.backgroundLoc = scr_size*3
+        size.star_seq = round(scr_size*0.06)
+        size.star_s = round(scr_size*0.004)
+        size.star_l = round(scr_size*0.01)
+        size.font_eng = round(scr_size*0.065)
+        size.font_kor =  round(scr_size*0.040)
+        size.toppos = scr_size*0.2
+        size.ratio = scr_size*0.002
+        size.middletoppos = scr_size*0.35
+        size.topendpos = scr_size*0.15
+        size.middlepos = size.x_background*0.5
+        size.achievement = scr_size/3000
+        size.achievementpos = scr_size*0.25
+        size.hi_achievement = scr_size*0.0001
+        size.hi_achievementx = scr_size*0.3
+        size.hi_achievementx2 = scr_size*0.35
+        size.hi_achievementy = scr_size*0.16
+        size.hi_achievementy_seq = scr_size*0.043
+        size.selectitemposx = scr_size*0.2
+        size.selectitemposy = scr_size*0.5
+        size.button1pos_1 = round(size.x_background*0.08)
+        size.button2pos_1 = round(size.x_background*0.48)
+        size.button3pos_1 = round(size.x_background*0.86)
+        size.buttonpos_2 = round(scr_size*0.9)
+        size.buttonpos_3 = round(scr_size*0.25)
+        size.buttonpos_4 = round(scr_size*0.1)
+        size.button1pos_1_ad = round(size.x_background*0.07)
+        size.button2pos_1_ad = round(size.x_background*0.45)
+        size.button3pos_1_ad = round(size.x_background*0.85)
+        size.button_ad = round(size.x_background*0.896)
+        size.lifex = scr_size * 0.80
+        size.lifey = scr_size * 0.01
+
+    def resize(x, y, level_size) :
+
+        scr_size = min(x//size.x_background_ratio, y)
+        if scr_size < 300 :
+            scr_size = 300
+        user_size = round(scr_size / level_size)
+        set_size(scr_size)
+        sprites.get_size(user_size, level_size)
+        time.sleep(0.1) # 과도한 리사이즈(초당 60번)를 하지 않도록 함
+
+        screen = pygame.display.set_mode((size.x_background, scr_size), pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
+
+        background = pygame.Surface((size.x_background, size.background))
+        background = background.convert()
+        background.fill(BLACK)
+
+        backgroundLoc = size.backgroundLoc
+        finalStars = deque()
+        for y in range(0, size.backgroundLoc, size.star_seq):
+            starsize = random.randint(size.star_s, size.star_l)
+            x = random.randint(0, size.x_background - starsize)
+            if y <= scr_size:
+                finalStars.appendleft((x, y + size.backgroundLoc, starsize))
+            pygame.draw.rect(
+                background, RED, pygame.Rect(x, y, starsize, starsize))
+        while finalStars:
+            x, y, starsize = finalStars.pop()
+            pygame.draw.rect(
+                background, RED, pygame.Rect(x, y, starsize, starsize))
+
+        font = pygame.font.Font(None, size.font_eng)
+        font2 = pygame.font.SysFont('nanumgothic', size.font_kor)
+
+        title, titleRect = load_image('title_mode2.png')
+        title = pygame.transform.scale(title, (round(title.get_width()*size.ratio), round(title.get_height()*size.ratio)))
+        titleRect = pygame.Rect(0, 0, title.get_width(), title.get_height())
+        pause,pauseRect = load_image('pause.png',WHITE)
+        pause = pygame.transform.scale(pause, (round(pause.get_width()*size.ratio), round(pause.get_height()*size.ratio)))
+        pauseRect = pygame.Rect(0, 0, pause.get_width(), pause.get_height())
+        titleRect.midtop = screen.get_rect().inflate(0, -size.middletoppos).midtop
+        pauseRect.midtop = screen.get_rect().inflate(0, -size.middletoppos).midtop
+
+        dist, distRect = load_image('black.png', WHITE)
+        dist = pygame.transform.scale(dist, (scr_size, scr_size))
+        distRect = pygame.Rect(0, 0, dist.get_width(), dist.get_height())
+        distRect.midtop = screen.get_rect().inflate(0, 0).midtop
+
+        dist2, distRect2 = load_image('black.png', WHITE)
+        dist2 = pygame.transform.scale(dist2, (scr_size, scr_size))
+        distRect2 = pygame.Rect(0, 0, dist2.get_width(), dist2.get_height())
+        distRect2.midtop = screen.get_rect().inflate(0, 0).midtop
+
+        text_eng_set = [font.render('START GAME', 1, WHITE),
+                        font.render('SOUND FX', 1, WHITE),
+                        font.render('   ON', 1, RED),
+                        font.render('   OFF', 1, RED),
+                        font.render('MUSIC', 1, WHITE),
+                        font.render('   ON', 1, RED),
+                        font.render('   OFF', 1, RED),
+                        font.render('QUIT', 1, WHITE),
+                        font.render('RESTART', 1, WHITE),
+                        font.render('LANGUAGE', 1, WHITE),
+                        font.render('GAME OVER', 1, WHITE),
+                        font.render('SPEED UP!', 1, RED)]
+
+        text_kor_set = [font2.render('게임 시작', 1, WHITE),
+                        font2.render('효과음        ', 1, WHITE),
+                        font2.render('켜짐      ', 1, RED),
+                        font2.render('꺼짐', 1, RED),
+                        font2.render('음악', 1, WHITE),
+                        font2.render('켜짐', 1, RED),
+                        font2.render('꺼짐', 1, RED),
+                        font2.render('종료', 1, WHITE),
+                        font2.render('다시 시작', 1, WHITE),
+                        font2.render('언어', 1, WHITE),
+                        font2.render('게임 종료', 1, WHITE),
+                        font2.render('스피드 업!', 1, RED)]
+
+        startText, fxText, fxOnText, fxOffText, musicText, musicOnText, musicOffText, quitText, restartText, languageText, gameOverText, speedUpText = set_language(language)
+
+        startPos = startText.get_rect(midtop=titleRect.inflate(0, size.topendpos).midbottom)
+        fxPos = fxText.get_rect(topleft=startPos.bottomleft)
+        fxOnPos = fxOnText.get_rect(topleft=fxPos.topright)
+        fxOffPos = fxOffText.get_rect(topleft=fxPos.topright)
+        musicPos = fxText.get_rect(topleft=fxPos.bottomleft)
+        musicOnPos = musicOnText.get_rect(topleft=musicPos.topright)
+        musicOffPos = musicOffText.get_rect(topleft=musicPos.topright)
+        quitPos = quitText.get_rect(topleft=musicPos.bottomleft)
+        languagePos = languageText.get_rect(topleft=quitPos.bottomleft)
+
+        selectText = font.render('> ', 1, WHITE)
+        selectPos = selectText.get_rect(topright=startPos.topleft)
+        restartPos = restartText.get_rect(bottomleft=fxPos.topleft)
+
+
+        playerText, player2Text, bstartText, switchText = beforegame_text_update(language)
+        playerPos = playerText.get_rect(topleft=screen.get_rect().topleft)
+        player2Pos = player2Text.get_rect(topleft=screen.get_rect().midtop)
+        bstartPos = bstartText.get_rect(center=screen.get_rect().center)
+        switchPos = switchText.get_rect(midbottom=screen.get_rect().midbottom)
+
+        menuDict = {1: startPos, 2: fxPos, 3: musicPos, 4: quitPos, 5: languagePos}
+
+        # 버튼 구현
+        mainImg = pygame.image.load("data/main.png")
+        mainImg = pygame.transform.scale(mainImg, (round(mainImg.get_width()*size.ratio), round(mainImg.get_height()*size.ratio)))
+        modeImg_one = pygame.image.load("data/mode1.png")
+        modeImg_one = pygame.transform.scale(modeImg_one, (round(modeImg_one.get_width()*size.ratio), round(modeImg_one.get_height()*size.ratio)))
+        modeImg_two = pygame.image.load("data/mode2.png")
+        modeImg_two = pygame.transform.scale(modeImg_two, (round(modeImg_two.get_width()*size.ratio), round(modeImg_two.get_height()*size.ratio)))
+        quitImg = pygame.image.load("data/quiticon.png")
+        quitImg = pygame.transform.scale(quitImg, (round(quitImg.get_width()*size.ratio), round(quitImg.get_height()*size.ratio)))
+        clickmainImg = pygame.image.load("data/mainclicked.png")
+        clickmainImg = pygame.transform.scale(clickmainImg, (round(clickmainImg.get_width()*size.ratio), round(clickmainImg.get_height()*size.ratio)))
+        clickmodeImg_one = pygame.image.load("data/mode1clicked.png")
+        clickmodeImg_one = pygame.transform.scale(clickmodeImg_one, (round(clickmodeImg_one.get_width()*size.ratio), round(clickmodeImg_one.get_height()*size.ratio)))
+        clickmodeImg_two = pygame.image.load("data/mode2clicked.png")
+        clickmodeImg_two = pygame.transform.scale(clickmodeImg_two, (round(clickmodeImg_two.get_width()*size.ratio), round(clickmodeImg_two.get_height()*size.ratio)))
+        clickQuitImg = pygame.image.load("data/clickedQuitIcon.png")
+        clickQuitImg = pygame.transform.scale(clickQuitImg, (round(clickQuitImg.get_width()*size.ratio), round(clickQuitImg.get_height()*size.ratio)))
+
+        return scr_size, user_size, screen, background, backgroundLoc, finalStars, font, font2, title, titleRect, pause, pauseRect, text_eng_set, text_kor_set, startPos, startText, fxPos, fxOnPos, fxOffPos, musicPos, musicOnPos, musicOffPos, quitPos, languagePos, selectText, selectPos, restartPos, menuDict, dist, distRect, dist2, distRect2, playerText, player2Text, bstartText, switchText, playerPos, player2Pos, bstartPos, switchPos
 
     def kill_alien(alien, aliensLeftThisWave, kill_count, score) :
         aliensLeftThisWave -= 1
@@ -425,7 +587,6 @@ def main(scr, level, id, language):
             elif (event.type == pygame.KEYDOWN
                   and event.key == pygame.K_RETURN): # K_RETURN은 enter누르면
                 if selection == 1:
-                    screen = pygame.display.set_mode((size.x_background, scr_size))  # 리사이즈 불가능하도록 변경
                     inMenu = False
                     shoot_count , kill_count = 0, 0
                     playerText, player2Text, bstartText, switchText = beforegame_text_update(language)
@@ -493,6 +654,43 @@ def main(scr, level, id, language):
         #여기까지 버튼 구현size.button_ad
 
     while before_game:
+
+        # resize
+        scr_x , scr_y = pygame.display.get_surface().get_size()
+        if size.x_background != scr_x or scr_size != scr_y :
+            prev_scr_size = scr_size
+            scr_size, user_size, screen, background, backgroundLoc, finalStars, font, font2, title, titleRect, pause, pauseRect, text_eng_set, text_kor_set, startPos, startText, fxPos, fxOnPos, fxOffPos, musicPos, musicOnPos, musicOffPos, quitPos, languagePos, selectText, selectPos, restartPos, menuDict, dist, distRect, dist2, distRect2, playerText, player2Text, bstartText, switchText, playerPos, player2Pos, bstartPos, switchPos = resize(scr_x, scr_y, mode2_lvl_size)
+            shipx, shipy = ship.rect[0] * scr_size / prev_scr_size, ship.rect[1] * scr_size / prev_scr_size
+            shipspeed = ship.speed
+            shipx2, shipy2 = ship2.rect[0] * scr_size / prev_scr_size, ship2.rect[1] * scr_size / prev_scr_size
+            shipspeed2 = ship2.speed
+
+            Alien.pool = pygame.sprite.Group([alien() for alien in initialAlienTypes for _ in range(5)])
+            powerupTypes = (BombPowerup, ShieldPowerup, DoublemissilePowerup)
+            Missile.pool = pygame.sprite.Group([Missile() for _ in range(10)])
+            Explosion.pool = pygame.sprite.Group([Explosion() for _ in range(10)])
+
+            for i in allsprites.sprites() :
+                for j in i.rect :
+                    j = j * scr_size / prev_scr_size
+                i.image = pygame.transform.scale(i.image, (round(i.image.get_width()* scr_size / prev_scr_size), round(i.image.get_height()*scr_size / prev_scr_size)))
+                i.rect = pygame.Rect(0, 0, i.image.get_width(), i.image.get_height())
+                i.screen = pygame.display.get_surface()
+                i.area = ship.screen.get_rect()
+
+            ship.speed = round(shipspeed * scr_size / prev_scr_size)
+            ship.shield = pygame.transform.scale(ship.shield, (round(ship.shield.get_width()* scr_size / prev_scr_size), round(ship.shield.get_height()*scr_size / prev_scr_size)))
+            ship.rect[0], ship.rect[1] = shipx, shipy
+            ship.original = ship.image
+            ship.radius = max(ship.rect.width, ship.rect.height)
+
+            ship2.speed = round(shipspeed2 * scr_size / prev_scr_size)
+            ship2.shield = pygame.transform.scale(ship2.shield, (round(ship2.shield.get_width()* scr_size / prev_scr_size), round(ship2.shield.get_height()*scr_size / prev_scr_size)))
+            ship2.rect[0], ship2.rect[1] = shipx2, shipy2
+            ship2.original = ship2.image
+            ship2.radius = max(ship2.rect.width, ship2.rect.height)
+        # resize
+
         clock.tick(clockTime)
 
         for event in pygame.event.get():
@@ -545,6 +743,43 @@ def main(scr, level, id, language):
         pygame.display.flip()
 
     while ship.alive and ship2.alive:
+
+        # resize
+        scr_x , scr_y = pygame.display.get_surface().get_size()
+        if size.x_background != scr_x or scr_size != scr_y :
+            prev_scr_size = scr_size
+            scr_size, user_size, screen, background, backgroundLoc, finalStars, font, font2, title, titleRect, pause, pauseRect, text_eng_set, text_kor_set, startPos, startText, fxPos, fxOnPos, fxOffPos, musicPos, musicOnPos, musicOffPos, quitPos, languagePos, selectText, selectPos, restartPos, menuDict, dist, distRect, dist2, distRect2, playerText, player2Text, bstartText, switchText, playerPos, player2Pos, bstartPos, switchPos = resize(scr_x, scr_y, mode2_lvl_size)
+            shipx, shipy = ship.rect[0] * scr_size / prev_scr_size, ship.rect[1] * scr_size / prev_scr_size
+            shipspeed = ship.speed
+            shipx2, shipy2 = ship2.rect[0] * scr_size / prev_scr_size, ship2.rect[1] * scr_size / prev_scr_size
+            shipspeed2 = ship2.speed
+
+            Alien.pool = pygame.sprite.Group([alien() for alien in initialAlienTypes for _ in range(5)])
+            powerupTypes = (BombPowerup, ShieldPowerup, DoublemissilePowerup)
+            Missile.pool = pygame.sprite.Group([Missile() for _ in range(10)])
+            Explosion.pool = pygame.sprite.Group([Explosion() for _ in range(10)])
+
+            for i in allsprites.sprites() :
+                for j in i.rect :
+                    j = j * scr_size / prev_scr_size
+                i.image = pygame.transform.scale(i.image, (round(i.image.get_width()* scr_size / prev_scr_size), round(i.image.get_height()*scr_size / prev_scr_size)))
+                i.rect = pygame.Rect(0, 0, i.image.get_width(), i.image.get_height())
+                i.screen = pygame.display.get_surface()
+                i.area = ship.screen.get_rect()
+
+            ship.speed = round(shipspeed * scr_size / prev_scr_size)
+            ship.shield = pygame.transform.scale(ship.shield, (round(ship.shield.get_width()* scr_size / prev_scr_size), round(ship.shield.get_height()*scr_size / prev_scr_size)))
+            ship.rect[0], ship.rect[1] = shipx, shipy
+            ship.original = ship.image
+            ship.radius = max(ship.rect.width, ship.rect.height)
+
+            ship2.speed = round(shipspeed2 * scr_size / prev_scr_size)
+            ship2.shield = pygame.transform.scale(ship2.shield, (round(ship2.shield.get_width()* scr_size / prev_scr_size), round(ship2.shield.get_height()*scr_size / prev_scr_size)))
+            ship2.rect[0], ship2.rect[1] = shipx2, shipy2
+            ship2.original = ship2.image
+            ship2.radius = max(ship2.rect.width, ship2.rect.height)
+        # resize
+
         clock.tick(clockTime)
 
         if aliensLeftThisWave >= aliennum:
@@ -627,6 +862,45 @@ def main(scr, level, id, language):
                 selectPos = selectText.get_rect(topright=restartPos.topleft)
 
                 while inPmenu:
+
+                    # resize
+                    scr_x , scr_y = pygame.display.get_surface().get_size()
+                    if size.x_background != scr_x or scr_size != scr_y :
+                        prev_scr_size = scr_size
+                        scr_size, user_size, screen, background, backgroundLoc, finalStars, font, font2, title, titleRect, pause, pauseRect, text_eng_set, text_kor_set, startPos, startText, fxPos, fxOnPos, fxOffPos, musicPos, musicOnPos, musicOffPos, quitPos, languagePos, selectText, selectPos, restartPos, menuDict, dist, distRect, dist2, distRect2, playerText, player2Text, bstartText, switchText, playerPos, player2Pos, bstartPos, switchPos = resize(scr_x, scr_y, mode2_lvl_size)
+                        shipx, shipy = ship.rect[0] * scr_size / prev_scr_size, ship.rect[1] * scr_size / prev_scr_size
+                        shipspeed = ship.speed
+                        shipx2, shipy2 = ship2.rect[0] * scr_size / prev_scr_size, ship2.rect[1] * scr_size / prev_scr_size
+                        shipspeed2 = ship2.speed
+
+                        Alien.pool = pygame.sprite.Group([alien() for alien in initialAlienTypes for _ in range(5)])
+                        powerupTypes = (BombPowerup, ShieldPowerup, DoublemissilePowerup)
+                        Missile.pool = pygame.sprite.Group([Missile() for _ in range(10)])
+                        Explosion.pool = pygame.sprite.Group([Explosion() for _ in range(10)])
+
+                        for i in allsprites.sprites() :
+                            for j in i.rect :
+                                j = j * scr_size / prev_scr_size
+                            i.image = pygame.transform.scale(i.image, (round(i.image.get_width()* scr_size / prev_scr_size), round(i.image.get_height()*scr_size / prev_scr_size)))
+                            i.rect = pygame.Rect(0, 0, i.image.get_width(), i.image.get_height())
+                            i.screen = pygame.display.get_surface()
+                            i.area = ship.screen.get_rect()
+
+                        ship.speed = round(shipspeed * scr_size / prev_scr_size)
+                        ship.shield = pygame.transform.scale(ship.shield, (round(ship.shield.get_width()* scr_size / prev_scr_size), round(ship.shield.get_height()*scr_size / prev_scr_size)))
+                        ship.rect[0], ship.rect[1] = shipx, shipy
+                        ship.original = ship.image
+                        ship.radius = max(ship.rect.width, ship.rect.height)
+
+                        ship2.speed = round(shipspeed2 * scr_size / prev_scr_size)
+                        ship2.shield = pygame.transform.scale(ship2.shield, (round(ship2.shield.get_width()* scr_size / prev_scr_size), round(ship2.shield.get_height()*scr_size / prev_scr_size)))
+                        ship2.rect[0], ship2.rect[1] = shipx2, shipy2
+                        ship2.original = ship2.image
+                        ship2.radius = max(ship2.rect.width, ship2.rect.height)
+                        menuDict = {1: restartPos, 2: fxPos, 3: musicPos, 4: quitPos}
+
+                    # resize
+
                     clock.tick(clockTime)
                     screen, background, backgroundLoc = background_update(screen, background, backgroundLoc)
 
@@ -929,6 +1203,43 @@ def main(scr, level, id, language):
 
 
     while True:
+
+        # resize
+        scr_x , scr_y = pygame.display.get_surface().get_size()
+        if size.x_background != scr_x or scr_size != scr_y :
+            prev_scr_size = scr_size
+            scr_size, user_size, screen, background, backgroundLoc, finalStars, font, font2, title, titleRect, pause, pauseRect, text_eng_set, text_kor_set, startPos, startText, fxPos, fxOnPos, fxOffPos, musicPos, musicOnPos, musicOffPos, quitPos, languagePos, selectText, selectPos, restartPos, menuDict, dist, distRect, dist2, distRect2, playerText, player2Text, bstartText, switchText, playerPos, player2Pos, bstartPos, switchPos = resize(scr_x, scr_y, mode2_lvl_size)
+            shipx, shipy = ship.rect[0] * scr_size / prev_scr_size, ship.rect[1] * scr_size / prev_scr_size
+            shipspeed = ship.speed
+            shipx2, shipy2 = ship2.rect[0] * scr_size / prev_scr_size, ship2.rect[1] * scr_size / prev_scr_size
+            shipspeed2 = ship2.speed
+
+            Alien.pool = pygame.sprite.Group([alien() for alien in initialAlienTypes for _ in range(5)])
+            powerupTypes = (BombPowerup, ShieldPowerup, DoublemissilePowerup)
+            Missile.pool = pygame.sprite.Group([Missile() for _ in range(10)])
+            Explosion.pool = pygame.sprite.Group([Explosion() for _ in range(10)])
+
+            for i in allsprites.sprites() :
+                for j in i.rect :
+                    j = j * scr_size / prev_scr_size
+                i.image = pygame.transform.scale(i.image, (round(i.image.get_width()* scr_size / prev_scr_size), round(i.image.get_height()*scr_size / prev_scr_size)))
+                i.rect = pygame.Rect(0, 0, i.image.get_width(), i.image.get_height())
+                i.screen = pygame.display.get_surface()
+                i.area = ship.screen.get_rect()
+
+            ship.speed = round(shipspeed * scr_size / prev_scr_size)
+            ship.shield = pygame.transform.scale(ship.shield, (round(ship.shield.get_width()* scr_size / prev_scr_size), round(ship.shield.get_height()*scr_size / prev_scr_size)))
+            ship.rect[0], ship.rect[1] = shipx, shipy
+            ship.original = ship.image
+            ship.radius = max(ship.rect.width, ship.rect.height)
+
+            ship2.speed = round(shipspeed2 * scr_size / prev_scr_size)
+            ship2.shield = pygame.transform.scale(ship2.shield, (round(ship2.shield.get_width()* scr_size / prev_scr_size), round(ship2.shield.get_height()*scr_size / prev_scr_size)))
+            ship2.rect[0], ship2.rect[1] = shipx2, shipy2
+            ship2.original = ship2.image
+            ship2.radius = max(ship2.rect.width, ship2.rect.height)
+        # resize
+
         clock.tick(clockTime)
 
         for event in pygame.event.get():
